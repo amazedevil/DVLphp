@@ -15,5 +15,5 @@ use Exception;
  *
  * @author User
  */
-class AdapterNotFoundException extends Exception {
+class AdapterNotFoundException extends BaseValidatorStructureException {
 }

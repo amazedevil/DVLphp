@@ -8,10 +8,12 @@
 
 namespace DVL;
 
+use Exception;
+
 /**
- * Description of FalseResultValidationException
+ * Description of ValidatorStructureException
  *
  * @author User
  */
-class FalseResultValidationException extends BaseValidationException {    
+class ValidatorBinaryStructureException extends Exception {    
 }

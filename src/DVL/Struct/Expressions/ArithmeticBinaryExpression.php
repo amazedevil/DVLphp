@@ -61,7 +61,7 @@ class ArithmeticBinaryExpression extends BaseArithmeticExpression {
                 return $this->calcValue1($context)->getNumericWithTypeException() -
                     $this->calcValue2($context)->getNumericWithTypeException();
             default:
-                throw new ValidatorStructureException(
+                throw new ValidatorBinaryStructureException(
                         sprintf(ArithmeticBinaryExpression::WRONG_TYPE_EXCEPTION_MESSAGE),
                         $this->type);
         }

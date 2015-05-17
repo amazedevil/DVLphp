@@ -23,7 +23,7 @@ class FunctionManager {
         ];
     }
     
-    public function executeFunction($name, $args) {
+    public function executeFunction($name, array $args) {
         if (isset($this->functions[$name])) {
             call_user_func_array($this->functions[$name], $args);
         } else {

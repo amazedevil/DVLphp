@@ -14,4 +14,18 @@ namespace DVL;
  * @author User
  */
 class ValidationException extends BaseValidationException {
+    
+    const EXCEPTION_CODE = 0;
+    
+    private $reasonException;
+    
+    function __construct(BaseValidationException $reasonException, $message) {
+        $this->reasonException = $reasonException;
+        parent::__construct($message, static::EXCEPTION_CODE, $reasonException);
+    }
+    
+    public function getMessageException() {
+        return $this;
+    }
+    
 }

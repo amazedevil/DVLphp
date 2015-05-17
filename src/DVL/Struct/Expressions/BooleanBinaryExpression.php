@@ -58,31 +58,27 @@ class BooleanBinaryExpression extends BaseBooleanExpression {
                     return $this->calcValue2($context)->isTrue();
                 }
             case BooleanBinaryExpression::TYPE_GREATER:
-                return Value::isGreaterThroughException(
-                        $this->calcValue1($context), 
-                        $this->calcValue2($context));
+                return $this->calcValue1($context)->getNumericWithTypeException() >
+                    $this->calcValue2($context)->getNumericWithTypeException();
             case BooleanBinaryExpression::TYPE_GREATER_OR_EQUAL:
-                return Value::isGreaterOrEqualThroughException(
-                        $this->calcValue1($context), 
-                        $this->calcValue2($context));
+                return $this->calcValue1($context)->getNumericWithTypeException() >=
+                    $this->calcValue2($context)->getNumericWithTypeException();
             case BooleanBinaryExpression::TYPE_LESS:
-                return Value::isLessThroughException(
-                        $this->calcValue1($context), 
-                        $this->calcValue2($context));
+                return $this->calcValue1($context)->getNumericWithTypeException() <
+                    $this->calcValue2($context)->getNumericWithTypeException();
             case BooleanBinaryExpression::TYPE_LESS_OR_EQUAL:
-                return Value::isLessOrEqualThroughException(
+                return $this->calcValue1($context)->getNumericWithTypeException() <=
+                    $this->calcValue2($context)->getNumericWithTypeException();
+            case BooleanBinaryExpression::TYPE_EQUAL:
+                return Value::isEqualWithTypeException(
                         $this->calcValue1($context),
                         $this->calcValue2($context));
-            case BooleanBinaryExpression::TYPE_EQUAL:
-                return Value::isEqualThroughException(
-                        $this->calcValue1($context), 
-                        $this->calcValue2($context));
             case BooleanBinaryExpression::TYPE_NOT_EQUAL:
-                return Value::isNotEqualThroughException(
-                        $this->calcValue1($context), 
+                return !Value::isEqualWithTypeException(
+                        $this->calcValue1($context),
                         $this->calcValue2($context));
             default:
-                throw new ValidatorStructureException(
+                throw new ValidatorBinaryStructureException(
                         sprintf(BooleanBinaryExpression::WRONG_TYPE_EXCEPTION_MESSAGE),
                         $this->type);
         }

@@ -15,19 +15,29 @@ namespace DVL;
  */
 class ArrayItemValidationException extends BaseValidationException {
     
-    private $keys;
+    private $key;
+    private $nested;
     
-    function __construct($keys, BaseValidationException $validationException) {
+    function __construct($key, BaseValidationException $validationException) {
         parent::__construct($validationException->getMessage(), 0, $validationException);
-        $this->key = $keys;
+        $this->key = $key;
+        $this->nested = $validationException;
     }
     
-    public function getKeys() {
-        return $this->keys;
+    public function getKey() {
+        return $this->key;
+    }
+
+    public function getNestedException() {
+        return $this->nested;
     }
     
-    public function addKeys( $keys ) {
-        $this->keys[] = $keys;
+    public function getFinalException() {
+        return $this->getNestedException()->getFinalException();
     }
     
+    public function getMessageException() {
+        return $this->getNestedException()->getMessageException();
+    }
+
 }

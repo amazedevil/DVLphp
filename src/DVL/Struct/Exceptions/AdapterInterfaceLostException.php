@@ -15,6 +15,5 @@ use Exception;
  *
  * @author User
  */
-class AdapterInterfaceLostException extends Exception {
-    //TODO: add class name parameter
+class AdapterInterfaceLostException extends BaseValidatorStructureException {
 }

@@ -8,12 +8,17 @@
 
 namespace DVL;
 
-use Exception;
-
 /**
- * Description of ValidatorStructureException
+ * Description of VariableNameNotFoundException
  *
  * @author User
  */
-class ValidatorStructureException extends Exception {    
+class VariableNameNotFoundException extends BaseValidatorStructureException {
+    
+    private $name;
+    
+    function __construct($name) {
+        $this->name = $name;
+    }
+    
 }

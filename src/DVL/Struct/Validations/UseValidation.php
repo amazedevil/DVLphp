@@ -25,7 +25,7 @@ class UseValidation extends BaseValidation {
     
     public function execute(Context $context) {        
         $this->nestedValidation->execute(
-            new Context($this->expression->calculate($context))
+            Context::createFromContextWithThis($context, $this->expression->calculate($context))
         );
     }
     

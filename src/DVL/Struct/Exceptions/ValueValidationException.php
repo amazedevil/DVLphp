@@ -8,25 +8,21 @@
 
 namespace DVL;
 
-use Exception;
-
 /**
- * Description of BaseValidationException
+ * Description of ValueValidationException
  *
  * @author User
  */
-abstract class BaseValidationException extends Exception {
-
-    public function getFinalException() {
-        return $this;
-    }
+class ValueValidationException extends BaseValidationException {
     
-    public function getMessageException() {
-        return null;
+    private $value;
+    
+    function __construct($value) {
+        $this->value = $value;
     }
     
     public function getInvalidValue() {
-        return null;
+        return $this->value;
     }
     
 }

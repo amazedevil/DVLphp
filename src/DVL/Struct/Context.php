@@ -16,28 +16,37 @@ namespace DVL;
 class Context {
     
     private $self;
-    private $n;
+    private $variables;
     private $validator;
     
-    function __construct(DVLValidator $validator, Value $self, Value $n = null) {
+    function __construct(DVLValidator $validator, Value $self, array $variables = []) {
         $this->self = $self;
         $this->validator = $validator;
+        $this->variables = $variables;
     }
     
     public static function createFromContextWithThis(Context $context, Value $self) {
-        return new Context($context->validator, $self);
+        return new Context($context->validator, $self, $context->variables);
     }
     
-    public static function createFromContextWithN(Context $context, Value $value) {
-        return new Context($context->validator, $context->self, $value);
+    public static function createFromContext(Context $context) {
+        return new Context($context->validator, $context->self, $context->variables);
     }
-    
+        
     public function getThis() {
         return $this->self;
     }
     
-    public function getN() {
-        return $this->n;
+    public function setVariable($name, Value $value) {
+        $this->variables[$name] = $value;
+    }
+    
+    public function getVariable($name) {
+        return $this->variables[$name];
+    }
+    
+    public function getAllVariables() { 
+        return $this->variables;
     }
     
     public function getAdapterManager() {

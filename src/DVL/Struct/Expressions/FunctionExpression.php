@@ -18,15 +18,17 @@ class FunctionExpression extends BaseExpression {
     private $name;
     private $arguments;
     
-    function __construct($name, $arguments = []) {
+    function __construct($name, array $arguments = []) {
         $this->name = $name;
         $this->arguments = $arguments;
     }
     
     public function calculate(Context $context) {
-        return new Value(Value::onEachItem($this->arguments, function() use ($context) {
-            $context->getFunctionManager()->executeFunction($this->name);
-        }));
+        return new Value($context->getFunctionManager()->executeFunction(
+            $this->name, 
+            array_map(function($arg) use ($context) { 
+                return $arg->calculate($context)->getRawValue();
+            }, $this->arguments)));
     }
     
 }

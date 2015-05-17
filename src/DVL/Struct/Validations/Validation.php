@@ -23,9 +23,24 @@ class Validation extends BaseValidation {
         $this->message = $message;
     }
     
+    private function processMessage(Context $context, BaseValidationException $e, $message) {
+        $replacements = [];
+        foreach ($context->getAllVariables() as $key => $value) {
+            $replacements["\{$key\}"] = $value;
+        }
+        if ($e->getInvalidValue() !== null) {
+            $replacements['{invalid}'] = $e->getInvalidValue();
+        }
+        return strtr($message, $replacements);
+    }
+    
     public function execute(Context $context) {
-        if ($this->expression->calculate($context)->isFalse()) {
-            //TODO: throw validation failed exception
+        try {
+            if ($this->expression->calculate($context)->isFalse()) {
+                throw new FalseResultValidationException();
+            }
+        } catch (BaseValidationException $e) {
+            throw new ValidationException($e, $this->processMessage($e));
         }
     }
     

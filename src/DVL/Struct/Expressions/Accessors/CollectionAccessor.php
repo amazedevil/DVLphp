@@ -21,7 +21,7 @@ class CollectionAccessor extends BaseAccessor {
         $this->selector = $selector;
     }
     
-    private function isMatchesSelector($key) {
+    private function isMatchesSelector(Context $context, $key) {
         $selectorResult = true;
         if ($this->selector !== null) {
             try {
@@ -36,34 +36,18 @@ class CollectionAccessor extends BaseAccessor {
         return $selectorResult;
     }
     
-    public function getValue(Context $context, $variable) {        
-        $isQueried = $variable->isQueried();
+    public function getValue(Context $context, $variable) {  
         $resultArray = [];
-        if ($isQueried) {
-            foreach ($variable->getArrayWithTypeException() as $value) {
-                foreach ($value->getArrayWithTypeException() as $key => $innerValue) {
-                    if ($this->isMatchesSelector($key)) {
-                        $resultArray[] = new Value(
-                                $context, 
-                                $innerValue->value, 
-                                array_merge($innerValue->getKeys(), [ $key ]),
-                                true);
-                    }
-                }
-            }
-        } else {
-            foreach ($variable->getArrayWithTypeException() as $key => $value) {
-                if ($this->isMatchesSelector($key)) {
-                    $resultArray[] = new Value(
-                            $context, 
-                            $value->value, 
-                            [ $key ],
-                            true);
-                }
+        foreach ($variable->getArrayWithTypeException() as $key => $value) {
+            if ($this->isMatchesSelector($context, $key)) {
+                $resultArray[] = new Value(
+                        $context, 
+                        $value->value,
+                        true);
             }
         }
         
-        return new Value($context, $resultArray);
+        return new Value($context, $resultArray, true);
     }
 
 }

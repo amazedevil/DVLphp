@@ -18,15 +18,14 @@ class DVLParser extends Parser\Basic {
 
 Number: /[0-9]+/
 String: /'([^'\\]|\\')*'/ | /"([^"\\]|\\")*"/
-Name: !Boolean !This !N /[a-zA-Z_]+([a-zA-Z0-9_]*)/
+Name: !Boolean !This /[a-zA-Z_]+([a-zA-Z0-9_]*)/
 Boolean: 'true' | 'false'
-This: 'this' ![a-zA-Z0-9_]
-N: 'n' ![a-zA-Z0-9_]
+This: 'this' !/[a-zA-Z0-9_]/
 
 Selector: Expression
 Property: '.' Name >
 ArrayElement: '[' > ( Selector )? > ']' >
-Variable: ( Name | This | N ) (Property | ArrayElement)* >
+Variable: ( Name | This ) (Property | ArrayElement)* >
 
 Argument: Expression
 Function: Name '(' > ( Argument )? > ( ',' > Argument > )* ')' >
@@ -38,7 +37,8 @@ Use: '(' > Expression > ')' > ValidationControl >
 	function ValidationControl( &$result, $sub ) {
 		echo "Use - ValidationControl: {$sub['text']}\n";
 	}
-Ternary: '(' > BooleanExpression > ')' > '?' > ValidationControl > ( ':' > ValidationControl > )? >
+Ternary: '(' > BooleanExpression > ')' > '?' > ValidationControl > ( ':' > ValidationControl > )?
+Foreach: '$(' > ArrayExpression > ')' > ValidationControl >
 Group: '{' > ValidationControl > ( ',' > ValidationControl > )* '}' >
 	function ValidationControl( &$result, $sub ) {
 		echo "ValidationControl: {$sub['text']}\n";
@@ -98,6 +98,8 @@ Expression: String > | !BooleanOperation NumericExpression | BooleanExpression
 	function String( &$result, $sub ) {
 		echo "Expression - String: {$sub['text']}\n";
 	}
+	
+ArrayExpression: Function > | Variable >
 	
 */
 

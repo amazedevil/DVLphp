@@ -22,24 +22,11 @@ class PropertyAccessor extends BaseAccessor {
     }
     
     public function getValue(Context $context, Value $variable) {
-        $isQueried = $variable->isQueried();
-        if ($isQueried) {
-            $resultArray = [];
-            foreach ($variable->getArrayWithTypeException() as $value) {
-                $innerArray = $value->getArrayWithTypeException();
-                if (isset($innerArray[$this->name])) {
-                    $resultArray[] = new Value($context, $innerArray[$this->name], $value->getKeys(), true);
-                } else {
-                    throw new KeyNotFoundValidationException();
-                }
-            }
+        $array = $variable->getArrayWithTypeException();
+        if (isset($array[$this->name])) {
+            return new Value($context, $array[$this->name]);
         } else {
-            $array = $variable->getArrayWithTypeException();
-            if (isset($array[$this->name])) {
-                return new Value($context, $array[$this->name]);
-            } else {
-                throw new KeyNotFoundValidationException();
-            }
+            throw new KeyNotFoundValidationException();
         }
     }
     

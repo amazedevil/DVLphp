@@ -26,8 +26,13 @@ class TernaryValidation extends BaseValidation {
     }
     
     public function execute(Context $context) {
-        //TODO: what should happen when condition calculation fails?
-        if ($this->condition->calculate()->isTrue()) {
+        $result = true;
+        try {
+            $result = $this->condition->calculate()->isTrue();
+        } catch (BaseValidationException $e) {
+            $result = false;
+        }
+        if ($result) {
             $this->positiveNestedValidation->execute($context);
         } else {
             if ($this->negativeNestedValidation !== null) {

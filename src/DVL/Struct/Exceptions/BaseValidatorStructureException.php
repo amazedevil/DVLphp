@@ -9,14 +9,9 @@
 namespace DVL;
 
 /**
- * Description of NAccessor
+ * Description of BaseValidatorStructureException
  *
  * @author User
  */
-class NAccessor extends BaseAccessor {
-    
-    public function getValue(Context $context, $variable) {
-        return $context->getN();
-    }
-    
+class BaseValidatorStructureException extends Exception {
 }
