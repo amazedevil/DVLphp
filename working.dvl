@@ -1,0 +1,31 @@
+{
+	(this.var_num) {
+		INT(this) > 0 @ "Var_num is zero or negative, value = $",
+		this < 30 @ "Var_num is greater than 30"
+	},
+	(this.var_str) {
+		STRLEN(this) < 20,
+		this[0] == 't'
+	},
+	(this.var_arr) {
+		this[] > 0,
+		this[n % 2 > 0] == 2,
+		(KEYS(this)) {
+			this < 6,
+			this >= 0
+		}
+	},
+	MY_INLINE_SCRIPT_VALIDATOR(),
+    MY_SCRIPT_VALIDATOR('resource://script1.js', this[n % 2], this[(n+1) % 2]),
+	(IS_ASSOC(this.var_assoc)) ? (this.var_assoc) {
+		(KEYS(this)) {
+			MATCHES(this[], '.*key.*'),
+			this[n % 2] == 'key2' 
+		}
+	} : {
+		IS_ARRAY(this.var_assoc)
+	},
+	(this.var_assoc) {
+		INT(this[][])
+	}
+}
