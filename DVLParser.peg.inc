@@ -33,15 +33,11 @@ class DVLParser extends Parser\Basic {
 		}
 		return FALSE ;
 	}
-	
-	function getStringValue($text) {
-		return substr($text, 1, strlen($text) - 2);
-	}
 
 /*!* DVLParser
 
 Number: /[0-9]+/
-String: /'([^'\\]|\\')*'/ | /"([^"\\]|\\")*"/
+String: "\'" val:(/([^'\\]|\\')* /) "\'" | '"' val:(/([^"\\]|\\")* /) '"' 
 Name: !Boolean !This /[a-zA-Z_]+([a-zA-Z0-9_]*)/
 Tag: !Boolean !This /[a-zA-Z0-9_]+/
 Boolean: 'true' | 'false'
@@ -126,7 +122,7 @@ Validation: Expression ( > '@' > String > ( ':' > Tag )? )? >
 		$result['validation'] = new Validation( $sub['expression'] );
 	}
 	function String( &$result, $sub ) {
-		$result['validation']->setMessage($this->getStringValue($sub['text']));
+		$result['validation']->setMessage($sub['val']['text']);
 	}
 	function Tag( &$result, $sub ) {
 		echo "Validation - Tag\n";
@@ -315,7 +311,7 @@ NumericExpression: Sum >
 	
 StringExpression: String
 	function String( &$result, $sub ) {
-		$result['expression'] = new StringConstExpression($this->getStringValue($sub['text']));
+		$result['expression'] = new StringConstExpression($sub['val']['text']);
 	}
 
 Expression: StringExpression > | NumericExpression !BooleanBinaryOperatorSign | BooleanExpression
