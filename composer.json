@@ -11,6 +11,9 @@
         "hafriedlander/php-peg": "dev-master"
     },
 	"autoload": {
-        "files": ["vendor/hafriedlander/php-peg/autoloader.php"]
+		"files": ["vendor/hafriedlander/php-peg/autoloader.php"],
+		"psr-4": {
+            "DVL\\": "src/"
+        }
     }
 }

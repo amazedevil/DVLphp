@@ -8,7 +8,7 @@
 		this[0] == 't'
 	},
 	(this.var_arr) {
-		this[] > 0,
+		$(this[]) value > 0,
 		this[n % 2 > 0] == 2,
 		(KEYS(this)) {
 			this < 6,
@@ -19,13 +19,13 @@
     MY_SCRIPT_VALIDATOR('resource://script1.js', this[n % 2], this[(n+1) % 2]),
 	(IS_ASSOC(this.var_assoc)) ? (this.var_assoc) {
 		(KEYS(this)) {
-			MATCHES(this[], '.*key.*'),
-			this[n % 2] == 'key2' 
+			$(this[]) REGEX_MATCH(value, '.*key.*'),
+			$(this[n % 2]) value == 'key2' 
 		}
 	} : {
 		IS_ARRAY(this.var_assoc)
 	},
 	(this.var_assoc) {
-		INT(this[][])
+		$(this[]) INT(value)
 	}
 }
