@@ -8,6 +8,9 @@
 
 namespace DVL\Struct\Validations;
 
+use DVL\Struct\Context;
+use DVL\Struct\Expressions\BaseExpression;
+
 /**
  * Description of ForeachValidation
  *

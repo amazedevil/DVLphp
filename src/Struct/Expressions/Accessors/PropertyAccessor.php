@@ -9,6 +9,8 @@
 namespace DVL\Struct\Expressions\Accessors;
 
 use DVL\Struct\Context;
+use DVL\Struct\Value;
+use DVL\Struct\Exceptions\KeyNotFoundValidationException;
 
 /**
  * Description of PropertyAccessor
@@ -26,7 +28,7 @@ class PropertyAccessor extends BaseAccessor {
     public function getValue(Context $context, Value $variable) {
         $array = $variable->getArrayWithTypeException();
         if (isset($array[$this->name])) {
-            return new Value($context, $array[$this->name]);
+            return $array[$this->name];
         } else {
             throw new KeyNotFoundValidationException();
         }

@@ -10,6 +10,7 @@ namespace DVL\Struct\Expressions\Accessors;
 
 use DVL\Struct\Expressions\BaseExpression;
 use DVL\Struct\Context;
+use DVL\Struct\Value;
 
 /**
  * Description of CollectionAccessor
@@ -29,7 +30,7 @@ class CollectionAccessor extends BaseAccessor {
         if ($this->selector !== null) {
             try {
                 $selectorResult = $this->selector->calculate(
-                        Context::createFromContextWithN(
+                        Context::createFromContextWithI(
                                 $context, 
                                 new Value($context, $key)));
             } catch (BaseValidationException $e) {
@@ -47,10 +48,7 @@ class CollectionAccessor extends BaseAccessor {
         }
         foreach ($arrayVariable->getArrayWithTypeException() as $key => $value) {
             if ($this->isMatchesSelector($context, $key)) {
-                $resultArray[] = new Value(
-                        $context, 
-                        $value->value,
-                        true);
+                $resultArray[] = $value;
             }
         }
         

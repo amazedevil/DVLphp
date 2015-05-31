@@ -8,6 +8,10 @@
 
 namespace DVL\Struct;
 
+use DVL\Struct\Adapters\IAdapter;
+use DVL\Struct\Exceptions\AdapterInterfaceLostException;
+use DVL\Struct\Adapters\DefaultNativeObjectAdapter;
+
 /**
  * Description of WrappersFactory
  *
@@ -15,41 +19,37 @@ namespace DVL\Struct;
  */
 class AdapterManager {
     
-    private $classArrayAdapters = [];
-    private $objectNativeArrayAdapter;
+    private $adapters = [];
     
-    public function registerObjectNativeArrayAdapter( $adapterName ) {
-        $this->objectNativeArrayAdapter = $adapterName;
+    function __construct() {
+        $this->registerAdapter(new DefaultNativeObjectAdapter());
     }
     
-    public function registerClassArrayAdapter($className, $adapterName) {
-        $this->classArrayAdapters[$className] = $adapterName;
+    public function registerAdapter( $adapter ) {
+        array_unshift($this->adapters, $adapter);
+    }
+    
+    private function isNativeVariable($variable) {
+        return is_array($variable)
+            || is_numeric($variable)
+            || is_bool($variable)
+            || is_string($variable);
     }
     
     public function convertVariableToNative(Context $context, $variable) {
-        
-        $value = null;
-        $adapter = null;
-        
-        if (is_object($variable)) {
-            $className = get_class($variable);
-            if (isset($this->classArrayAdapters[$className])) {
-                $adapter = new $this->classArrayAdapters[$className]($variable);
-            } else {
-                $adapter = new $this->objectNativeArrayAdapter($variable);
+                
+        if (!$this->isNativeVariable($variable)) {
+            foreach ($this->adapters as $adapter) {
+                if ($adapter->isConvertableVariable($variable)) {
+                    if (!($adapter instanceof IAdapter)) {
+                        throw new AdapterInterfaceLostException();
+                    }
+                    return $adapter->convertToNativeVariable($variable);
+                }
             }
-        }
-        
-        if ($adapter !== null) {
-            if (!($adapter instanceof IArrayAdapter)) {
-                throw new AdapterInterfaceLostException();
-            }
-            $value = $adapter->getNativeArray();
         } else {
-            $value = $variable;
+            return $variable;
         }
-        
-        return $value;
     }
     
 }

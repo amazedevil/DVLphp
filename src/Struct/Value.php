@@ -46,13 +46,20 @@ class Value {
     private function wrapArrayItems(array $variable) {
         $wrappedValues = [];
         foreach ($variable as $key => $value) {
-            $wrappedValues[] = $this->wrapVariable($value);
+            if ($value instanceof Value) {
+                $wrappedValues[$key] = $value;
+            } else {
+                $wrappedValues[$key] = $this->wrapVariable($value);
+            }
         }
         return $wrappedValues;
     }
     
     private function wrapVariable($variable) {
-        $variable = $this->getAdapterManager()->convertVariableToNative($this->context, $variable);
+        $variable = $this
+                ->context
+                ->getAdapterManager()
+                ->convertVariableToNative($this->context, $variable);
         $val = null;
         if (is_array($variable)) {
             $val = new Value($this->context, $this->wrapArrayItems($variable));
@@ -92,7 +99,7 @@ class Value {
     
     public function getArrayWithTypeException() {
         if (!in_array($this->type, [ static::TYPE_ARRAY, static::TYPE_QUERIED_ARRAY ])) {
-            throw new TypeException($this->type, static::TYPE_ARRAY);
+            throw new TypeException($this->type, static::TYPE_ARRAY, $this->value);
         }
         
         return $this->value;
@@ -100,7 +107,7 @@ class Value {
     
     public function getQueriedArrayWithTypeException() {
         if ($this->type != static::TYPE_QUERIED_ARRAY) {
-            throw new TypeException($this->type, static::TYPE_QUERIED_ARRAY);
+            throw new TypeException($this->type, static::TYPE_QUERIED_ARRAY, $this->value);
         }
         
         return $this->value;
@@ -142,7 +149,7 @@ class Value {
     
     public function getBooleanWithTypeException() {
         if ($this->type != Value::TYPE_BOOLEAN) {
-            throw new TypeException($this->type, Value::TYPE_BOOLEAN);
+            throw new TypeException($this->type, Value::TYPE_BOOLEAN, $this->value);
         }
         
         return $this->value;
@@ -150,7 +157,10 @@ class Value {
     
     public function getNumericWithTypeException() {
         if ($this->type != Value::TYPE_NUMERIC) {
-            throw new TypeException($this->type, Value::TYPE_NUMERIC);
+            print_r(gettype($this->value));
+            //print_r([ 'type' => $this->type, 'expected' => Value::TYPE_NUMERIC, 'val' => $this->value ]);
+            exit;
+            throw new TypeException($this->type, Value::TYPE_NUMERIC, $this->value);
         }
         
         return $this->value;

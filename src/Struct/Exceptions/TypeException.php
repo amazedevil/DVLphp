@@ -19,7 +19,7 @@ class TypeException extends BaseValidationException {
     public $value;
     public $type;
     
-    function __construct($value, $type, $expectedType, $message = null) {
+    function __construct($type, $expectedType, $value = null, $message = null) {
         $this->value = $value;
         $this->type = $type;
         $this->expectedType = $expectedType;

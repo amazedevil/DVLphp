@@ -24,7 +24,7 @@ class VariableExpression extends BaseExpression {
     }
     
     public function addAccessor($accessor) {
-        $accessors[] = $accessor;
+        $this->accessors[] = $accessor;
     }
         
     public function calculate(Context $context) {

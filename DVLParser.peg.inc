@@ -92,7 +92,7 @@ Ternary: '(' > BooleanExpression > ')' > '?' > ValidationControl > ( ':' > Valid
 	}
 Foreach: '$(' > ArrayExpression > ( ':' > Name > ( '=>' > Name )? )? > ')' > ValidationControl >
 	function ArrayExpression( &$result, $sub ) {
-		$result['validation'] = new ForeachValidation([ $sub['validation'] ]);
+		$result['validation'] = new ForeachValidation( $sub['expression'] );
 	}
 	function Name( &$result, $sub ) {
 		if ($result['validation']->valueName === null) {
@@ -113,7 +113,7 @@ Group: '{' > ValidationControl > ( ',' > ValidationControl > )* '}' >
 			$result['validation']->addValidation( $sub['validation'] );
 		}
 	}
-ValidationControl: Group | Ternary | Use | Validation
+ValidationControl: Group | Foreach | Ternary | Use | Validation
 	function *( &$result, $sub ) {
 		$result['validation'] = $sub['validation'];
 	}

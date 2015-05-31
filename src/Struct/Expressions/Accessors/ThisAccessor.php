@@ -9,6 +9,7 @@
 namespace DVL\Struct\Expressions\Accessors;
 
 use DVL\Struct\Context;
+use DVL\Struct\Value;
 
 /**
  * Description of ThisAccessor

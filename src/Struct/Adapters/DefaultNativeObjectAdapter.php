@@ -13,16 +13,14 @@ namespace DVL\Struct\Adapters;
  *
  * @author User
  */
-class DefaultNativeObjectAdapter implements IArrayAdapter {
-    
-    private $variable;
-    
-    function __construct($variable) {
-        $this->variable = $variable;
+class DefaultNativeObjectAdapter implements IAdapter {
+        
+    public function convertToNativeVariable($variable) {
+        return (array) $variable;
     }
-    
-    public function getNativeArray() {
-        return (array) $this->variable;
+
+    public function isConvertableVariable($variable) {
+        return is_object($variable);
     }
 
 }

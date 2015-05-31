@@ -9,18 +9,16 @@
 	},
 	(this.var_arr) {
 		$(this[]) value > 0,
-		this[n % 2 > 0] == 2,
+		this[i % 2 > 0] == 2,
 		(KEYS(this)) {
 			this < 6,
 			this >= 0
 		}
 	},
-	MY_INLINE_SCRIPT_VALIDATOR(),
-    MY_SCRIPT_VALIDATOR('resource://script1.js', this[n % 2], this[(n+1) % 2]),
 	(IS_ASSOC(this.var_assoc)) ? (this.var_assoc) {
 		(KEYS(this)) {
-			$(this[]) REGEX_MATCH(value, '.*key.*'),
-			$(this[n % 2]) value == 'key2' 
+			$(this[i % 2 == 0]) NATIVE_REGEX_MATCH(value, '/.es./'),
+			$(this[i % 2 > 0]) value == 'key2'
 		}
 	} : {
 		IS_ARRAY(this.var_assoc)

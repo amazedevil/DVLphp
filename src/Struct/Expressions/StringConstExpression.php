@@ -9,6 +9,7 @@
 namespace DVL\Struct\Expressions;
 
 use DVL\Struct\Context;
+use DVL\Struct\Value;
 
 /**
  * Description of StringExpression

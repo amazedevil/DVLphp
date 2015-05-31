@@ -31,11 +31,11 @@ class Context {
         }
     }
     
-    public static function createFromContextWithN(Context $context, Value $self) {
+    public static function createFromContextWithI(Context $context, Value $self) {
         return new Context(
             $context->validator,
             $context->self, 
-            [ 'n' => $self ] + $context->variables
+            [ 'i' => $self ] + $context->variables
         );
     }
     

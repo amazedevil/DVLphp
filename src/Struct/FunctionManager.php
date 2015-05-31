@@ -8,7 +8,7 @@
 
 namespace DVL\Struct;
 
-use DVL\Exceptions\NativeValidationFunctionException;
+use DVL\Struct\Exceptions\NativeValidationFunctionException;
 
 /**
  * Description of FunctionManager
@@ -22,7 +22,25 @@ class FunctionManager {
     function __construct() {
         $this->functions = [
             'KEYS' => function($arr) { return keys($arr); },
-            'INT' => function($var) { return is_integer($var) ? $var : new NativeValidationFunctionException(NativeValidationFunctionException::FUNC_INT_TYPE_FAILED); }
+            'INT' => function($var) { 
+                return is_integer($var) ? 
+                    $var : 
+                    new NativeValidationFunctionException(
+                        NativeValidationFunctionException::FUNC_INT_TYPE_FAILED
+                    );
+            },
+            'STRLEN' => function($var) { return strlen($var); },
+            'IS_ASSOC' => function($var) { 
+                return is_array($var) && 
+                    array_keys($var) !== range(0, count($var) - 1);
+            },
+            'IS_ARRAY' => function() {
+                return is_array($var) && 
+                    array_keys($var) === range(0, count($var) - 1);
+            },
+            'NATIVE_REGEX_MATCH' => function($var, $regex) { 
+                return preg_match($regex, $var);
+            }
         ];
     }
     

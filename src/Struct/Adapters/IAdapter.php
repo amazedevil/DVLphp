@@ -13,8 +13,10 @@ namespace DVL\Struct\Adapters;
  *
  * @author User
  */
-interface IArrayAdapter {
+interface IAdapter {
     
-    public function getNativeArray();
+    public function isConvertableVariable($variable);
+    
+    public function convertToNativeVariable($variable);
     
 }
