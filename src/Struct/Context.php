@@ -9,6 +9,8 @@
 namespace DVL\Struct;
 
 use DVL\DVLValidator;
+use DVL\Struct\Expressions\Accessors\CollectionAccessor;
+use DVL\Struct\Exceptions\VariableNameNotFoundException;
 
 /**
  * Description of Context
@@ -35,7 +37,7 @@ class Context {
         return new Context(
             $context->validator,
             $context->self, 
-            [ 'i' => $self ] + $context->variables
+            [ CollectionAccessor::KEY_VARIABLE_NAME => $self ] + $context->variables
         );
     }
     
@@ -60,7 +62,11 @@ class Context {
     }
     
     public function getVariable($name) {
-        return $this->variables[$name];
+        if (isset($this->variables[$name])) {
+            return $this->variables[$name];
+        } else {
+            throw new VariableNameNotFoundException($name);
+        }
     }
     
     public function getAllVariables() { 

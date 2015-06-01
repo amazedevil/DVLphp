@@ -10,6 +10,7 @@ namespace DVL\Struct\Validations;
 
 use DVL\Struct\Expressions\BaseExpression;
 use DVL\Struct\Context;
+use DVL\Struct\Validations\BaseValidation;
 
 /**
  * Description of TernaryValidation
@@ -43,7 +44,7 @@ class TernaryValidation extends BaseValidation {
     public function execute(Context $context) {
         $result = true;
         try {
-            $result = $this->condition->calculate()->isTrue();
+            $result = $this->condition->calculate($context)->isTrue();
         } catch (BaseValidationException $e) {
             $result = false;
         }

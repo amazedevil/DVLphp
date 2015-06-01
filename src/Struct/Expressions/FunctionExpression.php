@@ -31,11 +31,14 @@ class FunctionExpression extends BaseExpression {
     }
     
     public function calculate(Context $context) {
-        return new Value($context, $context->getFunctionManager()->executeFunction(
-            $this->name, 
-            array_map(function($arg) use ($context) { 
-                return $arg->calculate($context)->getRawValue();
-            }, $this->arguments)));
+        return new Value(
+            $context, 
+            $context->getFunctionManager()->executeFunction( 
+                $this->name, 
+                array_map(function($arg) use ($context) { 
+                    return $arg->calculate($context)->getRawValue();
+                }, $this->arguments)), 
+            true);
     }
     
 }

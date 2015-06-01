@@ -9,10 +9,10 @@
 	},
 	(this.var_arr) {
 		$(this[]) value > 0,
-		this[i % 2 > 0] == 2,
-		(KEYS(this)) {
-			this < 6,
-			this >= 0
+		$(this[(i + 1) % 4 == 0]) value == 2,
+		$(KEYS(this)) {
+			value < 6,
+			value >= 0
 		}
 	},
 	(IS_ASSOC(this.var_assoc)) ? (this.var_assoc) {

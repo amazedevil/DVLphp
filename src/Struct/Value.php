@@ -43,6 +43,18 @@ class Value {
         }
     }
     
+    private static $TYPE_NAMES = [
+        Value::TYPE_BOOLEAN => 'boolean',
+        Value::TYPE_ARRAY => 'array',
+        Value::TYPE_NUMERIC => 'numeric',
+        Value::TYPE_STRING => 'string',
+        Value::TYPE_QUERIED_ARRAY => 'queried',
+    ];
+    
+    private static function typeToString($type) {
+        return static::$TYPE_NAMES[$type];
+    }
+
     private function wrapArrayItems(array $variable) {
         $wrappedValues = [];
         foreach ($variable as $key => $value) {
@@ -91,6 +103,10 @@ class Value {
         return $this->type == static::TYPE_STRING;
     }
     
+    public function isNumeric() {
+        return $this->type == static::TYPE_NUMERIC;
+    }
+    
     public function asArray() {
         return in_array($this->type, [ static::TYPE_ARRAY, static::TYPE_QUERIED_ARRAY ]) ? 
                 $this->value : 
@@ -99,7 +115,10 @@ class Value {
     
     public function getArrayWithTypeException() {
         if (!in_array($this->type, [ static::TYPE_ARRAY, static::TYPE_QUERIED_ARRAY ])) {
-            throw new TypeException($this->type, static::TYPE_ARRAY, $this->value);
+            throw new TypeException(
+                    static::typeToString($this->type), 
+                    static::typeToString(static::TYPE_ARRAY), 
+                    $this->value);
         }
         
         return $this->value;
@@ -107,7 +126,10 @@ class Value {
     
     public function getQueriedArrayWithTypeException() {
         if ($this->type != static::TYPE_QUERIED_ARRAY) {
-            throw new TypeException($this->type, static::TYPE_QUERIED_ARRAY, $this->value);
+            throw new TypeException(
+                    static::typeToString($this->type), 
+                    static::typeToString(static::TYPE_QUERIED_ARRAY), 
+                    $this->value);
         }
         
         return $this->value;
@@ -149,7 +171,10 @@ class Value {
     
     public function getBooleanWithTypeException() {
         if ($this->type != Value::TYPE_BOOLEAN) {
-            throw new TypeException($this->type, Value::TYPE_BOOLEAN, $this->value);
+            throw new TypeException(
+                    static::typeToString($this->type), 
+                    static::typeToString(Value::TYPE_BOOLEAN), 
+                    $this->value);
         }
         
         return $this->value;
@@ -157,18 +182,20 @@ class Value {
     
     public function getNumericWithTypeException() {
         if ($this->type != Value::TYPE_NUMERIC) {
-            print_r(gettype($this->value));
-            //print_r([ 'type' => $this->type, 'expected' => Value::TYPE_NUMERIC, 'val' => $this->value ]);
-            exit;
-            throw new TypeException($this->type, Value::TYPE_NUMERIC, $this->value);
+            throw new TypeException(
+                    static::typeToString($this->type), 
+                    static::typeToString(Value::TYPE_NUMERIC), 
+                    $this->value);
         }
         
         return $this->value;
     }
     
     public static function isEqualWithTypeException(Value $val1, Value $val2) {
-        if ($val1->type !== $val2->type) {
-            throw new TypeException($val1->type, $val2->type);
+        if ($val1->type !== $val2->type) {            
+            throw new TypeException(
+                    static::typeToString($val1->type), 
+                    static::typeToString($val2->type));
         }
         
         //TODO: for arrays should be deep comparison

@@ -25,7 +25,7 @@ class StringConstExpression extends BaseExpression {
     }
     
     public function calculate(Context $context) {
-        return new Value($this->value);
+        return new Value($context, $this->value);
     }
 
 }

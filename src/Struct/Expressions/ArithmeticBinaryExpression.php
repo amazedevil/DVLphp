@@ -47,19 +47,19 @@ class ArithmeticBinaryExpression extends BaseArithmeticExpression {
     
     public function calculateRaw(Context $context) {
         switch ($this->type) {
-            case BooleanBinaryExpression::TYPE_MUL:
+            case static::TYPE_MUL:
                 return $this->calcValue1($context)->getNumericWithTypeException() * 
                     $this->calcValue2($context)->getNumericWithTypeException();
-            case BooleanBinaryExpression::TYPE_DIV:
+            case static::TYPE_DIV:
                 return $this->calcValue1($context)->getNumericWithTypeException() / 
                     $this->calcValue2($context)->getNumericWithTypeException();
-            case BooleanBinaryExpression::TYPE_MOD:
+            case static::TYPE_MOD:
                 return $this->calcValue1($context)->getNumericWithTypeException() % 
                     $this->calcValue2($context)->getNumericWithTypeException();
-            case BooleanBinaryExpression::TYPE_PLUS:
+            case static::TYPE_PLUS:
                 return $this->calcValue1($context)->getNumericWithTypeException() +
                     $this->calcValue2($context)->getNumericWithTypeException();
-            case BooleanBinaryExpression::TYPE_MINUS:
+            case static::TYPE_MINUS:
                 return $this->calcValue1($context)->getNumericWithTypeException() -
                     $this->calcValue2($context)->getNumericWithTypeException();
             default:

@@ -21,7 +21,7 @@ class FunctionManager {
     
     function __construct() {
         $this->functions = [
-            'KEYS' => function($arr) { return keys($arr); },
+            'KEYS' => function($arr) { return array_keys($arr); },
             'INT' => function($var) { 
                 return is_integer($var) ? 
                     $var : 
