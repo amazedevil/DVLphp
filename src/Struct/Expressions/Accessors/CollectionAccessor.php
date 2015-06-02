@@ -25,7 +25,7 @@ class CollectionAccessor extends BaseAccessor {
     
     private $selector;
     
-    function __construct(BaseExpression $selector = null) {
+    function __construct(BaseExpression $selector) {
         $this->selector = $selector;
     }
     
@@ -79,7 +79,7 @@ class CollectionAccessor extends BaseAccessor {
             }
         }
         
-        return new Value($context, $resultArray, true);
+        return new Value($context, $resultArray);
     }
 
 }

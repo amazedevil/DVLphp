@@ -47,7 +47,7 @@ Property: '.' Name >
 	function Name( &$result, $sub ) {
 		$result['accessor'] = new PropertyAccessor($sub['text']);
 	}
-ArrayElement: '[' > ( selector:Expression )? > ']' >
+ArrayElement: '[' > selector:Expression > ']' >
 Variable: ( Name | This ) (Property | ArrayElement)* >
 	function Name( &$result, $sub ) {
 		$result['variable'] = new VariableExpression([ new VariableAccessor($sub['text']) ]);

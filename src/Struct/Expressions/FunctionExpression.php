@@ -37,8 +37,9 @@ class FunctionExpression extends BaseExpression {
                 $this->name, 
                 array_map(function($arg) use ($context) { 
                     return $arg->calculate($context)->getRawValue();
-                }, $this->arguments)), 
-            true);
+                }, $this->arguments)
+            )
+        );
     }
     
 }

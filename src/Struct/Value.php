@@ -21,13 +21,12 @@ class Value {
     const TYPE_STRING = 1;
     const TYPE_NUMERIC = 2;
     const TYPE_ARRAY = 3;
-    const TYPE_QUERIED_ARRAY = 4;
     
     public $type;
     public $value;
     private $context;
     
-    function __construct(Context $context, $value, $isQueried = false) {
+    function __construct(Context $context, $value) {
         $this->context = $context;
         $this->value = $context->getAdapterManager()->convertVariableToNative($this->context, $value);
         if (is_numeric($value)) {
@@ -39,7 +38,6 @@ class Value {
         } else if (is_array($value)) {
             $this->value = $this->wrapArrayItems($this->value);
             $this->type = static::TYPE_ARRAY;
-            $this->setQueried($isQueried);
         }
     }
     
@@ -48,7 +46,6 @@ class Value {
         Value::TYPE_ARRAY => 'array',
         Value::TYPE_NUMERIC => 'numeric',
         Value::TYPE_STRING => 'string',
-        Value::TYPE_QUERIED_ARRAY => 'queried',
     ];
     
     private static function typeToString($type) {
@@ -81,16 +78,6 @@ class Value {
         return $val;
     }
     
-    public function setQueried($isQueried = true) {
-        if (is_array($this->value)) {
-            $this->type = $isQueried ? static::TYPE_QUERIED_ARRAY : static::TYPE_ARRAY;
-        }
-    }
-    
-    public function isQueried() {
-        return $this->type == static::TYPE_QUERIED_ARRAY;
-    }
-    
     public function isTrue() {
         return $this->type == static::TYPE_BOOLEAN && $this->value == true;
     }
@@ -108,27 +95,14 @@ class Value {
     }
     
     public function asArray() {
-        return in_array($this->type, [ static::TYPE_ARRAY, static::TYPE_QUERIED_ARRAY ]) ? 
-                $this->value : 
-                [ $this->value ];
+        return $this->type == static::TYPE_ARRAY ? $this->value : [ $this->value ];
     }
     
     public function getArrayWithTypeException() {
-        if (!in_array($this->type, [ static::TYPE_ARRAY, static::TYPE_QUERIED_ARRAY ])) {
+        if ($this->type != static::TYPE_ARRAY) {
             throw new TypeException(
                     static::typeToString($this->type), 
                     static::typeToString(static::TYPE_ARRAY), 
-                    $this->value);
-        }
-        
-        return $this->value;
-    }
-    
-    public function getQueriedArrayWithTypeException() {
-        if ($this->type != static::TYPE_QUERIED_ARRAY) {
-            throw new TypeException(
-                    static::typeToString($this->type), 
-                    static::typeToString(static::TYPE_QUERIED_ARRAY), 
                     $this->value);
         }
         
@@ -153,12 +127,12 @@ class Value {
     
     public function getInverseValue() {
         switch ($this->type) {
-            case static::TYPE_ARRAY: case TYPE_QUERIED_ARRAY:
+            case static::TYPE_ARRAY:
                 $values = [];
                 foreach ($this->value as $value) {
                     $values[] = $value->getInverseValue();
                 }
-                return new Value( $this->context, $values, null, $this->isQueried() );
+                return new Value( $this->context, $values );
             case static::TYPE_BOOLEAN:
                 return new Value( $this->context, !$this->value );
             case static::TYPE_NUMERIC:

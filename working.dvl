@@ -8,7 +8,7 @@
 		this[0] == 't'
 	},
 	(this.var_arr) {
-		$(this[]) value > 0,
+		$(this) value > 0,
 		$(this[(i + 1) % 4 == 0]) value == 2,
 		$(KEYS(this)) {
 			value < 6,
@@ -24,6 +24,6 @@
 		IS_ARRAY(this.var_assoc)
 	},
 	(this.var_assoc) {
-		$(this[]) INT(value)
+		$(this) INT(value)
 	}
 }

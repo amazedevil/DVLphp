@@ -58,7 +58,7 @@ class ForeachValidation extends BaseValidation {
         foreach ($this
                 ->expression
                 ->calculate($context)
-                ->getQueriedArrayWithTypeException() as $key => $value) {
+                ->getArrayWithTypeException() as $key => $value) {
             $itemContext = Context::createFromContext($context);
             $itemContext->setVariable($this->getKeyName(), new Value($context, $key));
             $itemContext->setVariable($this->getValueName(), $value);
