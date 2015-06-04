@@ -90,17 +90,16 @@ Ternary: '(' > BooleanExpression > ')' > '?' > ValidationControl > ( ':' > Valid
 			$result['validation']->setNegative( $sub['validation'] );
 		}
 	}
-Foreach: '$(' > ArrayExpression > ( ':' > Name > ( '=>' > Name )? )? > ')' > ValidationControl >
+Foreach: '$(' > ArrayExpression > ( ':' > key_value:Name > ( '=>' > value:Name )? )? > ')' > ValidationControl >
 	function ArrayExpression( &$result, $sub ) {
 		$result['validation'] = new ForeachValidation( $sub['expression'] );
 	}
-	function Name( &$result, $sub ) {
-		if ($result['validation']->valueName === null) {
-			$result['validation']->valueName = $sub['text'];
-		} else {
-			$result['validation']->keyName = $result['validation']->valueName;
-			$result['validation']->valueName = $sub['text'];
-		}
+	function key_value( &$result, $sub ) {
+		$result['validation']->valueName = $sub['text'];
+	}
+	function value( &$result, $sub ) {
+		$result['validation']->keyName = $result['validation']->valueName;
+		$result['validation']->valueName = $sub['text'];
 	}
 	function ValidationControl( &$result, $sub ) {
 		$result['validation']->setValidation( $sub['validation'] );
@@ -117,16 +116,15 @@ ValidationControl: Group | Foreach | Ternary | Use | Validation
 	function *( &$result, $sub ) {
 		$result['validation'] = $sub['validation'];
 	}
-Validation: Expression ( > '@' > String > ( ':' > Tag )? )? >
+Validation: Expression ( > '@' > message:String > ( '%' > tag:String )? )? >
 	function Expression( &$result, $sub ) {
 		$result['validation'] = new Validation( $sub['expression'] );
 	}
-	function String( &$result, $sub ) {
+	function message( &$result, $sub ) {
 		$result['validation']->setMessage($sub['val']['text']);
 	}
-	function Tag( &$result, $sub ) {
-		echo "Validation - Tag\n";
-		$result['validation']->setTag($sub['text']);
+	function tag( &$result, $sub ) {
+		$result['validation']->setTag($sub['val']['text']);
 	}
 
 BooleanValue: Boolean > | Function > | Variable > | '(' > BooleanExpression > ')' >

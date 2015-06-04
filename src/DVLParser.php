@@ -638,7 +638,7 @@ public function Ternary_ValidationControl ( &$result, $sub ) {
 		}
 	}
 
-/* Foreach: '$(' > ArrayExpression > ( ':' > Name > ( '=>' > Name )? )? > ')' > ValidationControl > */
+/* Foreach: '$(' > ArrayExpression > ( ':' > key_value:Name > ( '=>' > value:Name )? )? > ')' > ValidationControl > */
 protected $match_Foreach_typestack = array('Foreach');
 function match_Foreach ($stack = array()) {
 	$matchrule = "Foreach"; $result = $this->construct($matchrule, $matchrule, null);
@@ -664,7 +664,9 @@ function match_Foreach ($stack = array()) {
 			if (( $subres = $this->whitespace(  ) ) !== FALSE) { $result["text"] .= $subres; }
 			$matcher = 'match_'.'Name'; $key = $matcher; $pos = $this->pos;
 			$subres = ( $this->packhas( $key, $pos ) ? $this->packread( $key, $pos ) : $this->packwrite( $key, $pos, $this->$matcher(array_merge($stack, array($result))) ) );
-			if ($subres !== FALSE) { $this->store( $result, $subres ); }
+			if ($subres !== FALSE) {
+				$this->store( $result, $subres, "key_value" );
+			}
 			else { $_125 = FALSE; break; }
 			if (( $subres = $this->whitespace(  ) ) !== FALSE) { $result["text"] .= $subres; }
 			$res_124 = $result;
@@ -676,7 +678,9 @@ function match_Foreach ($stack = array()) {
 				if (( $subres = $this->whitespace(  ) ) !== FALSE) { $result["text"] .= $subres; }
 				$matcher = 'match_'.'Name'; $key = $matcher; $pos = $this->pos;
 				$subres = ( $this->packhas( $key, $pos ) ? $this->packread( $key, $pos ) : $this->packwrite( $key, $pos, $this->$matcher(array_merge($stack, array($result))) ) );
-				if ($subres !== FALSE) { $this->store( $result, $subres ); }
+				if ($subres !== FALSE) {
+					$this->store( $result, $subres, "value" );
+				}
 				else { $_123 = FALSE; break; }
 				$_123 = TRUE; break;
 			}
@@ -719,13 +723,13 @@ public function Foreach_ArrayExpression ( &$result, $sub ) {
 		$result['validation'] = new ForeachValidation( $sub['expression'] );
 	}
 
-public function Foreach_Name ( &$result, $sub ) {
-		if ($result['validation']->valueName === null) {
-			$result['validation']->valueName = $sub['text'];
-		} else {
-			$result['validation']->keyName = $result['validation']->valueName;
-			$result['validation']->valueName = $sub['text'];
-		}
+public function Foreach_key_value ( &$result, $sub ) {
+		$result['validation']->valueName = $sub['text'];
+	}
+
+public function Foreach_value ( &$result, $sub ) {
+		$result['validation']->keyName = $result['validation']->valueName;
+		$result['validation']->valueName = $sub['text'];
 	}
 
 public function Foreach_ValidationControl ( &$result, $sub ) {
@@ -886,7 +890,7 @@ public function ValidationControl_STR ( &$result, $sub ) {
 		$result['validation'] = $sub['validation'];
 	}
 
-/* Validation: Expression ( > '@' > String > ( ':' > Tag )? )? > */
+/* Validation: Expression ( > '@' > message:String > ( '%' > tag:String )? )? > */
 protected $match_Validation_typestack = array('Validation');
 function match_Validation ($stack = array()) {
 	$matchrule = "Validation"; $result = $this->construct($matchrule, $matchrule, null);
@@ -909,22 +913,26 @@ function match_Validation ($stack = array()) {
 			if (( $subres = $this->whitespace(  ) ) !== FALSE) { $result["text"] .= $subres; }
 			$matcher = 'match_'.'String'; $key = $matcher; $pos = $this->pos;
 			$subres = ( $this->packhas( $key, $pos ) ? $this->packread( $key, $pos ) : $this->packwrite( $key, $pos, $this->$matcher(array_merge($stack, array($result))) ) );
-			if ($subres !== FALSE) { $this->store( $result, $subres ); }
+			if ($subres !== FALSE) {
+				$this->store( $result, $subres, "message" );
+			}
 			else { $_176 = FALSE; break; }
 			if (( $subres = $this->whitespace(  ) ) !== FALSE) { $result["text"] .= $subres; }
 			$res_175 = $result;
 			$pos_175 = $this->pos;
 			$_174 = NULL;
 			do {
-				if (substr($this->string,$this->pos,1) == ':') {
+				if (substr($this->string,$this->pos,1) == '%') {
 					$this->pos += 1;
-					$result["text"] .= ':';
+					$result["text"] .= '%';
 				}
 				else { $_174 = FALSE; break; }
 				if (( $subres = $this->whitespace(  ) ) !== FALSE) { $result["text"] .= $subres; }
-				$matcher = 'match_'.'Tag'; $key = $matcher; $pos = $this->pos;
+				$matcher = 'match_'.'String'; $key = $matcher; $pos = $this->pos;
 				$subres = ( $this->packhas( $key, $pos ) ? $this->packread( $key, $pos ) : $this->packwrite( $key, $pos, $this->$matcher(array_merge($stack, array($result))) ) );
-				if ($subres !== FALSE) { $this->store( $result, $subres ); }
+				if ($subres !== FALSE) {
+					$this->store( $result, $subres, "tag" );
+				}
 				else { $_174 = FALSE; break; }
 				$_174 = TRUE; break;
 			}
@@ -956,13 +964,12 @@ public function Validation_Expression ( &$result, $sub ) {
 		$result['validation'] = new Validation( $sub['expression'] );
 	}
 
-public function Validation_String ( &$result, $sub ) {
+public function Validation_message ( &$result, $sub ) {
 		$result['validation']->setMessage($sub['val']['text']);
 	}
 
-public function Validation_Tag ( &$result, $sub ) {
-		echo "Validation - Tag\n";
-		$result['validation']->setTag($sub['text']);
+public function Validation_tag ( &$result, $sub ) {
+		$result['validation']->setTag($sub['val']['text']);
 	}
 
 /* BooleanValue: Boolean > | Function > | Variable > | '(' > BooleanExpression > ')' > */
