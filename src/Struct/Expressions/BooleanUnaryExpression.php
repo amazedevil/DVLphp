@@ -17,6 +17,8 @@ use DVL\Struct\Context;
  */
 class BooleanUnaryExpression extends BaseBooleanExpression {
     
+    const WRONG_TYPE_EXCEPTION_MESSAGE = "Unknown unary boolean expression type %d";
+    
     const TYPE_NOT = 1;
     
     private $type;
@@ -36,7 +38,9 @@ class BooleanUnaryExpression extends BaseBooleanExpression {
             case static::TYPE_NOT:
                 return $this->getValue($context)->getInverseValue();
             default:
-                //TODO: throw error
+                throw new ValidatorBinaryStructureException(
+                        sprintf(static::WRONG_TYPE_EXCEPTION_MESSAGE, $this->type)
+                    );
         }
     }
     

@@ -9,6 +9,10 @@
 namespace DVL\Struct;
 
 use DVL\Struct\Exceptions\NativeValidationFunctionException;
+use DVL\DVLParser;
+use DVL\Struct\Exceptions\FunctionNameInvalidException;
+use DVL\Struct\Exceptions\FunctionNotFoundException;
+use InvalidArgumentException;
 
 /**
  * Description of FunctionManager
@@ -42,6 +46,35 @@ class FunctionManager {
                 return preg_match($regex, $var);
             }
         ];
+    }
+    
+    private function isValidFunctionName($name) {
+        $parser = new DVLParser($name);
+        return $parser->match_Name() !== false;
+    }
+    
+    public function addFunction($name, $function) {
+        if ($this->isValidFunctionName($name)) {
+            if (is_callable($function)) {
+                $this->functions[$name] = $function;
+            } else if (is_string($function)) {
+                if (function_exists($function)) {
+                    $this->functions[$name] = function() use ($function) { 
+                        return $function();
+                    };
+                } else {
+                    throw new FunctionNotFoundException();
+                }
+            } else {
+                throw new InvalidArgumentException();
+            }
+        } else {
+            throw new FunctionNameInvalidException();
+        }
+    }
+    
+    public function removeFunction($name) {
+        unset($this->functions[$name]);
     }
     
     public function executeFunction($name, array $args) {

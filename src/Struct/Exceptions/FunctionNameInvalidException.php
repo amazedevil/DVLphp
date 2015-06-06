@@ -8,12 +8,11 @@
 
 namespace DVL\Struct\Exceptions;
 
-use Exception;
-
 /**
- * Description of ValidatorStructureException
+ * Description of FunctionNameInvalidException
  *
  * @author User
  */
-class ValidatorBinaryStructureException extends BaseValidatorStructureException {    
+class FunctionNameInvalidException extends BaseValidatorStructureException {
+    
 }

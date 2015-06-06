@@ -17,7 +17,7 @@ use DVL\Struct\Context;
  */
 class ArithmeticBinaryExpression extends BaseArithmeticExpression {
     
-    const WRONG_TYPE_EXCEPTION_MESSAGE = "Unknown arithmetic expression type %d";
+    const WRONG_TYPE_EXCEPTION_MESSAGE = "Unknown binary arithmetic expression type %d";
     
     const TYPE_MUL = 1;
     const TYPE_DIV = 2;
@@ -64,8 +64,8 @@ class ArithmeticBinaryExpression extends BaseArithmeticExpression {
                     $this->calcValue2($context)->getNumericWithTypeException();
             default:
                 throw new ValidatorBinaryStructureException(
-                        sprintf(ArithmeticBinaryExpression::WRONG_TYPE_EXCEPTION_MESSAGE),
-                        $this->type);
+                        sprintf(static::WRONG_TYPE_EXCEPTION_MESSAGE, $this->type)
+                    );
         }
     }
     

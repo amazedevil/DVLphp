@@ -18,7 +18,7 @@ use DVL\Struct\Value;
  */
 class BooleanBinaryExpression extends BaseBooleanExpression {
     
-    const WRONG_TYPE_EXCEPTION_MESSAGE = "Unknown binary expression type %d";
+    const WRONG_TYPE_EXCEPTION_MESSAGE = "Unknown binary boolean expression type %d";
     
     const TYPE_AND = 1;
     const TYPE_OR = 2;
@@ -82,8 +82,8 @@ class BooleanBinaryExpression extends BaseBooleanExpression {
                         $this->calcValue2($context));
             default:
                 throw new ValidatorBinaryStructureException(
-                        sprintf(BooleanBinaryExpression::WRONG_TYPE_EXCEPTION_MESSAGE),
-                        $this->type);
+                        sprintf(static::WRONG_TYPE_EXCEPTION_MESSAGE, $this->type)
+                    );
         }
     }
     

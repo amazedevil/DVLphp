@@ -17,6 +17,8 @@ use DVL\Struct\Context;
  */
 class ArithmeticUnaryExpression extends BaseArithmeticExpression {
     
+    const WRONG_TYPE_EXCEPTION_MESSAGE = "Unknown unary arithmetic expression type %d";
+    
     const TYPE_MINUS = 1;
     
     private $type;
@@ -36,7 +38,9 @@ class ArithmeticUnaryExpression extends BaseArithmeticExpression {
             case static::TYPE_MINUS:
                 return $this->getValue($context)->getInverseValue();
             default:
-                //TODO: throw error
+                throw new ValidatorBinaryStructureException(
+                        sprintf(static::WRONG_TYPE_EXCEPTION_MESSAGE, $this->type)
+                    );
         }
     }
 

@@ -1,1 +1,1 @@
-php vendor\hafriedlander\php-peg\cli.php DVLParser.peg.inc > src\DVLParser.php
+vendor/bin/cli.php.bat DVLParser.peg.inc > src\DVLParser.php

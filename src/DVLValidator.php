@@ -35,6 +35,11 @@ class DVLValidator {
         } else if ($source instanceof BaseValidation) {
             $this->validation = $source;
         }
+        if (isset($options['functions'])) {
+            foreach ($options['functions'] as $name => $function) {
+                $this->functionManager->addFunction($name, $function);
+            }
+        }
     }
     
     public function compile($source) {
@@ -56,6 +61,10 @@ class DVLValidator {
         return $this->functionManager;
     }
     
+    public function addFunction($name, $function) {
+        $this->functionManager->addFunction($name, $function);
+    }
+    
     public function getLastException() {
         return $this->lastException;
     }
@@ -75,7 +84,7 @@ class DVLValidator {
         } catch (ValidationException $e) {
             $this->lastException = $e;
         }
-        return $this->lastException != null;
+        return $this->lastException === null;
     }
     
 }

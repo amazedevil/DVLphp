@@ -9,6 +9,7 @@
 namespace DVL\Struct;
 
 use DVL\Struct\Exceptions\TypeException;
+use DVL\Struct\Exceptions\KeyNotFoundValidationException;
 
 /**
  * Description of Value
@@ -16,6 +17,8 @@ use DVL\Struct\Exceptions\TypeException;
  * @author User
  */
 class Value {
+    
+    const STRING_INVERSE_EXCEPTION_MESSAGE = "String inverse exception";
     
     const TYPE_BOOLEAN = 0;
     const TYPE_STRING = 1;
@@ -53,7 +56,7 @@ class Value {
     }
 
     private function wrapArrayItems(array $variable) {
-        $wrappedValues = [];
+        $wrappedValues = array();
         foreach ($variable as $key => $value) {
             if ($value instanceof Value) {
                 $wrappedValues[$key] = $value;
@@ -114,8 +117,10 @@ class Value {
     }
     
     public function addElement($element, $key = null) {
-        if ($this->type != Value::TYPE_ARRAY) {
-            //TODO: throw some exception
+        if ($this->type != static::TYPE_ARRAY) {
+            throw new TypeException(
+                    static::typeToString($this->type), 
+                    static::typeToString(static::TYPE_ARRAY));
         }
         
         if ($key !== null) {
@@ -138,13 +143,14 @@ class Value {
             case static::TYPE_NUMERIC:
                 return new Value( $this->context, -$this->value );
             case static::TYPE_STRING:
-                //TODO: throw type exception
-                return null;
+                throw new ValidatorBinaryStructureException(
+                        static::STRING_INVERSE_EXCEPTION_MESSAGE
+                    );
         }
     }
     
     public function getBooleanWithTypeException() {
-        if ($this->type != Value::TYPE_BOOLEAN) {
+        if ($this->type != static::TYPE_BOOLEAN) {
             throw new TypeException(
                     static::typeToString($this->type), 
                     static::typeToString(Value::TYPE_BOOLEAN), 
@@ -155,7 +161,7 @@ class Value {
     }
     
     public function getNumericWithTypeException() {
-        if ($this->type != Value::TYPE_NUMERIC) {
+        if ($this->type != static::TYPE_NUMERIC) {
             throw new TypeException(
                     static::typeToString($this->type), 
                     static::typeToString(Value::TYPE_NUMERIC), 
@@ -166,14 +172,23 @@ class Value {
     }
     
     public static function isEqualWithTypeException(Value $val1, Value $val2) {
-        if ($val1->type !== $val2->type) {            
+        if ($val1->type !== $val2->type) {
             throw new TypeException(
                     static::typeToString($val1->type), 
                     static::typeToString($val2->type));
         }
         
-        //TODO: for arrays should be deep comparison
-        return $val1->value == $val2->value;
+        if ($val1->type == static::TYPE_ARRAY) {
+            foreach ($val1->value as $key => $val) {
+                if (isset($val2->value[$key])) {
+                    return static::isEqualWithTypeException($val, $val2->value[$key]);
+                } else {
+                    throw new KeyNotFoundValidationException();
+                }
+            }
+        } else {
+            return $val1->value == $val2->value;
+        }
     }
     
 }
