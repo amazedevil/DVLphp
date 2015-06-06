@@ -20,7 +20,7 @@ class ArithmeticConstExpression extends BaseArithmeticExpression {
     private $value;
     
     function __construct($value) {
-        $this->value = $value;
+        $this->value = floatval($value);
     }
     
     public function calculateRaw(Context $context) {

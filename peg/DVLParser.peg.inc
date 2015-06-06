@@ -127,7 +127,7 @@ Validation: Expression ( > '@' > message:String > ( '%' > tag:String )? )? >
 		$result['validation']->setTag($sub['val']['text']);
 	}
 
-BooleanValue: Boolean > | Function > | Variable > | '(' > BooleanExpression > ')' >
+BooleanValueNarrow: Boolean > | Function > | Variable > | '(' > BooleanExpression > ')' >
 	function Boolean( &$result, $sub ) {
 		$result['expression'] = new BooleanConstExpression($sub['text']);
 	}
@@ -140,7 +140,14 @@ BooleanValue: Boolean > | Function > | Variable > | '(' > BooleanExpression > ')
 	function BooleanExpression( &$result, $sub ) {
 		$result['expression'] = $sub['expression'];
 	}
-EqualityComparableExpression: NumericExpression | BooleanValue | StringExpression >
+	function CompareExpression( &$result, $sub ) {
+		$result['expression'] = $sub['expression'];
+	}
+BooleanValue: CompareExpression > | BooleanValueNarrow >
+	function *( &$result, $sub ) {
+		$result['expression'] = $sub['expression'];
+	}
+EqualityComparableExpression: NumericExpression | BooleanValueNarrow | StringExpression >
 	function *( &$result, $sub ) {
 		$result['expression'] = $sub['expression'];
 	}
@@ -150,17 +157,7 @@ LessOrEqual: '<=' > second_operand:NumericExpression >
 GreaterOrEqual: '>=' > second_operand:NumericExpression >
 Equal: '==' > second_operand:EqualityComparableExpression >
 NotEqual: '!=' > second_operand:EqualityComparableExpression >
-And: '&&' > second_operand:BooleanValue >
-Or: '||' > second_operand:BooleanValue >
-Not: '!' BooleanValue >
-	function BooleanValue( &$result, $sub ) {
-		$result['expression'] = new BooleanUnaryExpression(BooleanUnaryExpression::TYPE_NOT, $sub['expression']);
-	}
-BooleanBinaryOperatorSign: '>' | '<' | '>=' | '<=' | '==' | '!=' | '&&' | '||'
-BooleanOperation: Not | NumericExpression > ( Greater | Less | LessOrEqual | GreaterOrEqual ) | EqualityComparableExpression > ( Equal | NotEqual ) | BooleanValue > ( And | Or ) >
-	function Not( &$result, $sub ) {
-		$result['expression'] = $sub['expression'];
-	}
+CompareExpression: NumericExpression > ( Greater | Less | LessOrEqual | GreaterOrEqual ) | EqualityComparableExpression > ( Equal | NotEqual )
 	function NumericExpression( &$result, $sub ) {
 		$result['expression'] = $sub['expression'];
 	}
@@ -208,6 +205,17 @@ BooleanOperation: Not | NumericExpression > ( Greater | Less | LessOrEqual | Gre
 			$result['expression'],
 			$sub['second_operand']['expression']
 		);
+	}
+BooleanBinaryOperatorSign: '>' | '<' | '>=' | '<=' | '==' | '!=' | '&&' | '||'
+And: '&&' > second_operand:BooleanValue >
+Or: '||' > second_operand:BooleanValue >
+Not: '!' BooleanValue >
+	function BooleanValue( &$result, $sub ) {
+		$result['expression'] = new BooleanUnaryExpression(BooleanUnaryExpression::TYPE_NOT, $sub['expression']);
+	}
+BooleanOperation: Not | BooleanValue > ( And | Or ) >
+	function Not( &$result, $sub ) {
+		$result['expression'] = $sub['expression'];
 	}
 	function BooleanValue( &$result, $sub ) {
 		$result['expression'] = $sub['expression'];

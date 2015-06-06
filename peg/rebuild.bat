@@ -1,0 +1,1 @@
+..\vendor\bin\cli.php.bat DVLParser.peg.inc > ..\src\DVLParser.php

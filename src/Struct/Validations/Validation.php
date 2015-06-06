@@ -11,6 +11,8 @@ namespace DVL\Struct\Validations;
 use DVL\Struct\Expressions\BaseExpression;
 use DVL\Struct\Context;
 use DVL\Struct\Exceptions\FalseResultValidationException;
+use DVL\Struct\Exceptions\BaseValidationException;
+use DVL\Struct\Exceptions\ValidationException;
 
 /**
  * Description of BaseValidation
@@ -54,7 +56,10 @@ class Validation extends BaseValidation {
                 throw new FalseResultValidationException();
             }
         } catch (BaseValidationException $e) {
-            throw new ValidationException($e, $this->processMessage($e), $this->tag);
+            throw new ValidationException(
+                    $e, 
+                    $this->processMessage($context, $e, $this->message), 
+                    $this->tag);
         }
     }
     

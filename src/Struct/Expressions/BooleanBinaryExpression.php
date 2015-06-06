@@ -56,10 +56,14 @@ class BooleanBinaryExpression extends BaseBooleanExpression {
                     $this->calcValue2($context)->isTrue();
             case static::TYPE_OR:
                 try {
-                    return $this->calcValue1($context)->isTrue();
+                    if ($this->calcValue1($context)->isTrue()) {
+                        return true;
+                    }
                 } catch (BaseValidationException $e) {
-                    return $this->calcValue2($context)->isTrue();
+                    //We are ignoring first expression fail purposely,
+                    //that's why 'or' is not my favourite operation
                 }
+                return $this->calcValue2($context)->isTrue();
             case static::TYPE_GREATER:
                 return $this->calcValue1($context)->getNumericWithTypeException() >
                     $this->calcValue2($context)->getNumericWithTypeException();
