@@ -8,6 +8,8 @@
 
 namespace DVL\Struct\Exceptions;
 
+use DVL\Struct\Exceptions\BaseValidationException;
+
 /**
  * Description of TypeException
  *

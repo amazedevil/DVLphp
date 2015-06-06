@@ -11,6 +11,7 @@ namespace DVL\Struct;
 use DVL\Struct\Adapters\IAdapter;
 use DVL\Struct\Exceptions\AdapterInterfaceLostException;
 use DVL\Struct\Adapters\DefaultNativeObjectAdapter;
+use DVL\Struct\Exceptions\AdapterNotFoundException;
 
 /**
  * Description of WrappersFactory
@@ -33,7 +34,8 @@ class AdapterManager {
         return is_array($variable)
             || is_numeric($variable)
             || is_bool($variable)
-            || is_string($variable);
+            || is_string($variable)
+            || is_null($variable);
     }
     
     public function convertVariableToNative(Context $context, $variable) {
@@ -47,6 +49,7 @@ class AdapterManager {
                     return $adapter->convertToNativeVariable($variable);
                 }
             }
+            throw new AdapterNotFoundException();
         } else {
             return $variable;
         }

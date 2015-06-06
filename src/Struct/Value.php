@@ -24,6 +24,7 @@ class Value {
     const TYPE_STRING = 1;
     const TYPE_NUMERIC = 2;
     const TYPE_ARRAY = 3;
+    const TYPE_NULL = 4;
     
     public $type;
     public $value;
@@ -41,6 +42,8 @@ class Value {
         } else if (is_array($value)) {
             $this->value = $this->wrapArrayItems($this->value);
             $this->type = static::TYPE_ARRAY;
+        } else if (is_null($value)) {
+            $this->type = static::TYPE_NULL;
         }
     }
     
@@ -49,6 +52,7 @@ class Value {
         Value::TYPE_ARRAY => 'array',
         Value::TYPE_NUMERIC => 'numeric',
         Value::TYPE_STRING => 'string',
+        Value::TYPE_NULL => 'null',
     ];
     
     private static function typeToString($type) {
@@ -142,7 +146,7 @@ class Value {
                 return new Value( $this->context, !$this->value );
             case static::TYPE_NUMERIC:
                 return new Value( $this->context, -$this->value );
-            case static::TYPE_STRING:
+            case static::TYPE_NULL: case static::TYPE_STRING:
                 throw new ValidatorBinaryStructureException(
                         static::STRING_INVERSE_EXCEPTION_MESSAGE
                     );

@@ -19,6 +19,7 @@ class ValidatorTest extends PHPUnit_Framework_TestCase {
         
         $passingTests = array(
             '1 == 1' => null,
+            '1 != 2' => null,
             '1 >= 1' => null,
             '2 >= 1' => null,
             '1 <= 1' => null,
@@ -41,6 +42,7 @@ class ValidatorTest extends PHPUnit_Framework_TestCase {
         
         $failingTests = array(
             '1 == 2' => null,
+            '1 != 1' => null,
             '0 >= 1' => null,
             '1 <= 0' => null,
             '2 > 2' => null,
@@ -92,6 +94,58 @@ class ValidatorTest extends PHPUnit_Framework_TestCase {
                     $validator->validate($data), 
                     "Expression: \"$expression\"");
         }
+        
+    }
+    
+    public function testValidatorVariableOperations() {
+        
+        $passingTests = array(
+            'this == 1' => 1,
+            'this + 1 == 2' => 1,
+            'this * 2 == 4' => 2,
+            '2 + this * 2 == 6' => 2,
+            'this' => true,
+            'this && true' => true,
+            'this || false' => true,
+            'false || this' => true,
+        );
+        
+        foreach ($passingTests as $expression => $data) {
+            $validator = new DVLValidator( $expression );
+            $this->assertTrue(
+                    $validator->validate($data), 
+                    "Expression: \"$expression\"");
+        }
+        
+        $failingTests = array(
+            'this != 1' => 1,
+            '1 + this == 1' => 1,
+            'this * 2 == 5' => 2,
+            '2 + this * 2 != 6' => 2,
+            'this' => false,
+            'this && false' => true,
+            'this || false' => false,
+            'false || this' => false,
+        );
+        
+        foreach ($failingTests as $expression => $data) {
+            $validator = new DVLValidator( $expression );
+            $this->assertFalse(
+                    $validator->validate($data), 
+                    "Expression: \"$expression\"");
+        }
+        
+    }
+    
+    public function testValidatorFunctions() {
+        
+        //TODO: make tests for native + custom functions
+        
+    }
+    
+    public function testValidatorControlStructures() {
+        
+        //TODO: make tests for use, foreach, ternary, group
         
     }
     
