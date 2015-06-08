@@ -134,25 +134,6 @@ class Value {
         $this->value[] = $element;
     }
     
-    public function getInverseValue() {
-        switch ($this->type) {
-            case static::TYPE_ARRAY:
-                $values = [];
-                foreach ($this->value as $value) {
-                    $values[] = $value->getInverseValue();
-                }
-                return new Value( $this->context, $values );
-            case static::TYPE_BOOLEAN:
-                return new Value( $this->context, !$this->value );
-            case static::TYPE_NUMERIC:
-                return new Value( $this->context, -$this->value );
-            case static::TYPE_NULL: case static::TYPE_STRING:
-                throw new ValidatorBinaryStructureException(
-                        static::STRING_INVERSE_EXCEPTION_MESSAGE
-                    );
-        }
-    }
-    
     public function getBooleanWithTypeException() {
         if ($this->type != static::TYPE_BOOLEAN) {
             throw new TypeException(

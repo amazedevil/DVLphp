@@ -284,7 +284,7 @@ MinusProduct: '-' Product
 	function Product( &$result, $sub ) {
 		$result['expression'] = new ArithmeticUnaryExpression(
 			ArithmeticUnaryExpression::TYPE_MINUS,
-			$sub['operand']['expression']
+			$sub['expression']
 		);
 	}
 Plus: '+' > second_operand:Product >

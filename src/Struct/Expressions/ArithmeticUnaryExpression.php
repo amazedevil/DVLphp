@@ -36,7 +36,7 @@ class ArithmeticUnaryExpression extends BaseArithmeticExpression {
     public function calculateRaw(Context $context) {
         switch ($this->type) {
             case static::TYPE_MINUS:
-                return $this->getValue($context)->getInverseValue();
+                return -$this->getValue($context)->getNumericWithTypeException();
             default:
                 throw new ValidatorBinaryStructureException(
                         sprintf(static::WRONG_TYPE_EXCEPTION_MESSAGE, $this->type)

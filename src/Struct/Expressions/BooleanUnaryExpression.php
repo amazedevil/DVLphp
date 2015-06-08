@@ -36,7 +36,7 @@ class BooleanUnaryExpression extends BaseBooleanExpression {
     public function calculateRaw(Context $context) {
         switch ($this->type) {
             case static::TYPE_NOT:
-                return $this->getValue($context)->getInverseValue();
+                return !$this->getValue($context)->getBooleanWithTypeException();
             default:
                 throw new ValidatorBinaryStructureException(
                         sprintf(static::WRONG_TYPE_EXCEPTION_MESSAGE, $this->type)
