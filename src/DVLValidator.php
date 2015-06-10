@@ -87,4 +87,22 @@ class DVLValidator {
         return $this->lastException === null;
     }
     
+    public static function sValidate($data, $source, $options = null, &$exception = null) {
+        $validator = null;
+        if (is_string($source)) {
+            $validator = new DVLValidator($source, $options);
+        } else if ($source instanceof DVLValidator) {
+            $validator = $source;
+        }
+        
+        if ($validator->validate($data)) {
+            return true;
+        } else {
+            if ($exception !== null) {
+                $exception = $validator->lastException;
+            }
+            return false;
+        }
+    }
+    
 }

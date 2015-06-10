@@ -25,26 +25,76 @@ class FunctionManager {
     
     function __construct() {
         $this->functions = [
-            'KEYS' => function($arr) { return array_keys($arr); },
+            'KEYS' => function($var) { 
+                if (!is_array($var)) {
+                    throw new NativeValidationFunctionException(
+                        NativeValidationFunctionException::FUNC_ARRAY_TYPE_FAILED
+                    );
+                }
+                return array_keys($var);
+            },
             'INT' => function($var) { 
-                return is_integer($var) ? 
-                    $var : 
-                    new NativeValidationFunctionException(
+                if (!is_integer($var)) {
+                    throw new NativeValidationFunctionException(
                         NativeValidationFunctionException::FUNC_INT_TYPE_FAILED
                     );
+                }
+                return $var;
             },
-            'STRLEN' => function($var) { return strlen($var); },
+            'STRING' => function($var) {
+                if (!is_string($var)) {
+                    throw new NativeValidationFunctionException(
+                        NativeValidationFunctionException::FUNC_STRING_TYPE_FAILED
+                    );
+                }
+                return $var;
+            },
+            'ARRAY' => function($var) {
+                if (!is_array($var)) {
+                    throw new NativeValidationFunctionException(
+                        NativeValidationFunctionException::FUNC_ARRAY_TYPE_FAILED
+                    );
+                }
+                return $var;
+            },
+            'BOOL' => function($var) {
+                if (!is_bool($var)) {
+                    throw new NativeValidationFunctionException(
+                        NativeValidationFunctionException::FUNC_BOOL_TYPE_FAILED
+                    );
+                }
+                return $var;
+            },
+            'STRLEN' => function($var) { 
+                if (!is_string($var)) {
+                    throw new NativeValidationFunctionException(
+                        NativeValidationFunctionException::FUNC_STRING_TYPE_FAILED
+                    );
+                }
+                return strlen($var);
+            },
             'IS_ASSOC' => function($var) { 
                 return is_array($var) && 
                     array_keys($var) !== range(0, count($var) - 1);
             },
-            'IS_ARRAY' => function() {
+            'IS_ARRAY' => function($var) {
                 return is_array($var) && 
                     array_keys($var) === range(0, count($var) - 1);
             },
-            'NATIVE_REGEX_MATCH' => function($var, $regex) { 
-                return preg_match($regex, $var);
+            'NATIVE_REGEX_MATCH' => function($regex, $var, $flags = 0, $offset = 0) { 
+                if (!is_string($regex) || !is_string($var)) {
+                    throw new NativeValidationFunctionException(
+                        NativeValidationFunctionException::FUNC_STRING_TYPE_FAILED
+                    );
+                }
+                if (!is_int($flags) || !is_int($flags)) {
+                    throw new NativeValidationFunctionException(
+                        NativeValidationFunctionException::FUNC_INT_TYPE_FAILED
+                    );
+                }
+                return preg_match($regex, $var, $uninitialized, $flags, $offset);
             }
+            //TODO: add COUNT function
         ];
     }
     

@@ -15,20 +15,18 @@ use DVL\DVLValidator;
  */
 class ValidatorTest extends PHPUnit_Framework_TestCase {
     
-    private function processSuccessiveTestsArray($tests) { 
+    private function processSuccessiveTestsArray($tests, $options = null) { 
         foreach ($tests as $expression => $data) {
-            $validator = new DVLValidator( $expression );
             $this->assertTrue(
-                    $validator->validate($data), 
+                    DVLValidator::sValidate($data, $expression, $options),
                     "Expression: \"$expression\"");
         }
     }
     
-    private function processFailingTestsArray($tests) {
+    private function processFailingTestsArray($tests, $options = null) {
         foreach ($tests as $expression => $data) {
-            $validator = new DVLValidator( $expression );
             $this->assertFalse(
-                    $validator->validate($data), 
+                    DVLValidator::sValidate($data, $expression, $options), 
                     "Expression: \"$expression\"");
         }
     }
@@ -132,6 +130,34 @@ class ValidatorTest extends PHPUnit_Framework_TestCase {
     public function testValidatorFunctions() {
         
         //TODO: make tests for native + custom functions
+        $this->processSuccessiveTestsArray(array(
+            'INT(this) == 1' => 1,
+            '(INT(this)) this == 1' => 1,
+            'INT(this) + 1 == 2' => 1,
+            'BOOL(this)' => true,
+            'ARRAY(this)' => [ 1, 2, 3 ],
+            '$(KEYS(this)) value >= 0' => [ 1, 2, 3 ],
+            'STRING("test") == "test"' => null,
+            'STRLEN("test") == 4' => null,
+            'IS_ASSOC(this)' => [ 'a' => 1, 'b' => 2, 'c' => 3 ],
+            'IS_ARRAY(this)' => [ 1, 2, 3 ],
+            'NATIVE_REGEX_MATCH("/.e.t/", "test")' => true,
+            'TEST_FUNCTION1()' => true,
+            'TEST_FUNCTION1(this)' => false,
+            '!TEST_FUNCTION2()' => true,
+            '!TEST_FUNCTION2(this)' => false,
+            'TEST_FUNCTION3(true)' => null,
+            'TEST_FUNCTION3(this)' => true,
+            '!TEST_FUNCTION3(this)' => false,
+            'TEST_FUNCTION3(this) + 1 == 2' => 1,
+            '$(ARRAY(TEST_FUNCTION3(this))) value < 4' => [ 1, 2, 3 ],
+        ), [ 
+            'functions' => [
+                'TEST_FUNCTION1' => function() { return true; },
+                'TEST_FUNCTION2' => function() { return false; },
+                'TEST_FUNCTION3' => function($var) { return $var; },
+            ]
+        ]);
         
     }
     
