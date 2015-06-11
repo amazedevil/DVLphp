@@ -12,6 +12,7 @@ use DVL\Struct\Context;
 use DVL\Struct\AdapterManager;
 use DVL\Struct\FunctionManager;
 use DVL\Struct\Exceptions\ValidationException;
+use DVL\Struct\Exceptions\ArrayItemValidationException;
 
 /**
  * Description of DVLValidator
@@ -82,6 +83,8 @@ class DVLValidator {
         try {
             $this->validation->execute(new Context($this, $data));
         } catch (ValidationException $e) {
+            $this->lastException = $e;
+        } catch (ArrayItemValidationException $e) {
             $this->lastException = $e;
         }
         return $this->lastException === null;

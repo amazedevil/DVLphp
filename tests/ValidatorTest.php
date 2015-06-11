@@ -7,6 +7,7 @@
  */
 
 use DVL\DVLValidator;
+use DVL\Struct\Exceptions\FalseResultValidationException;
 
 /**
  * Description of ValidatorTests
@@ -129,7 +130,6 @@ class ValidatorTest extends PHPUnit_Framework_TestCase {
     
     public function testValidatorFunctions() {
         
-        //TODO: make tests for native + custom functions
         $this->processSuccessiveTestsArray(array(
             'INT(this) == 1' => 1,
             '(INT(this)) this == 1' => 1,
@@ -158,6 +158,37 @@ class ValidatorTest extends PHPUnit_Framework_TestCase {
                 'TEST_FUNCTION3' => function($var) { return $var; },
             ]
         ]);
+                
+        $this->processFailingTestsArray(array(
+            'INT(this) == "test"' => 'test',
+            '(INT(this)) this == "test"' => 'test',
+            'INT(this) + 1 != 2' => 'test',
+            'BOOL(this)' => 1,
+            'ARRAY(this)' => 1,
+            '$(KEYS(this)) value >= 0' => 'test',
+            'STRING(2) == "test"' => null,
+            'STRLEN(4) == 4' => null,
+            'IS_ASSOC(this)' => [ 1, 2, 3 ],
+            'IS_ARRAY(this)' => [ 'a' => 1, 'b' => 2, 'c' => 3 ],
+            'NATIVE_REGEX_MATCH(2, "test")' => true,
+            'EXCEPTION_FUNCTION()' => null,
+            '!TEST_FUNCTION1()' => true,
+            '!TEST_FUNCTION1(this)' => true,
+            'TEST_FUNCTION2()' => true,
+            'TEST_FUNCTION2(this)' => true,
+            'TEST_FUNCTION3(false)' => null,
+            'TEST_FUNCTION3(this)' => false,
+            '!TEST_FUNCTION3(this)' => true,
+            'TEST_FUNCTION3(this) + 1 != 2' => 1,
+            '$(ARRAY(TEST_FUNCTION3(this))) value < 4' => 1,
+        ), [
+            'functions' => [
+                'TEST_FUNCTION1' => function() { return true; },
+                'TEST_FUNCTION2' => function() { return false; },
+                'TEST_FUNCTION3' => function($var) { return $var; },
+                'EXCEPTION_FUNCTION' => function() { throw new FalseResultValidationException('test message'); }
+            ]
+        ]);
         
     }
     
@@ -176,6 +207,7 @@ class ValidatorTest extends PHPUnit_Framework_TestCase {
             '(this) ? true' => true,
             '(this) ? false : true' => false,
             '(this) ? true : false' => true,
+            '(this + 1  > 1) ? false : true' => true,
         ));
         
         $this->processFailingTestsArray(array(
@@ -194,6 +226,7 @@ class ValidatorTest extends PHPUnit_Framework_TestCase {
             '(this) ? false' => true,
             '(this) ? true : false' => false,
             '(this) ? false : true' => true,
+            '(this + 1 > 1) ? true : false' => true,
         ));
         
     }

@@ -10,6 +10,8 @@ namespace DVL\Struct\Validations;
 
 use DVL\Struct\Expressions\BaseExpression;
 use DVL\Struct\Context;
+use DVL\Struct\Exceptions\ValidationException;
+use DVL\Struct\Exceptions\BaseValidationException;
 
 /**
  * Description of UseValidation
@@ -30,9 +32,15 @@ class UseValidation extends BaseValidation {
         $this->nestedValidation = $validation;
     }
     
-    public function execute(Context $context) {        
+    public function execute(Context $context) {    
+        $self = null;
+        try {
+            $self = $this->expression->calculate($context);
+        } catch (BaseValidationException $e) {
+            throw new ValidationException( $e, null );
+        }
         $this->nestedValidation->execute(
-            Context::createFromContextWithThis($context, $this->expression->calculate($context))
+            Context::createFromContextWithThis($context, $self)
         );
     }
     

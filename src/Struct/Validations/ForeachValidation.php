@@ -11,6 +11,9 @@ namespace DVL\Struct\Validations;
 use DVL\Struct\Context;
 use DVL\Struct\Expressions\BaseExpression;
 use DVL\Struct\Value;
+use DVL\Struct\Exceptions\BaseValidationException;
+use DVL\Struct\Exceptions\ValidationException;
+use DVL\Struct\Exceptions\ArrayItemValidationException;
 
 /**
  * Description of ForeachValidation
@@ -55,10 +58,13 @@ class ForeachValidation extends BaseValidation {
     }
     
     public function execute(Context $context) {
-        foreach ($this
-                ->expression
-                ->calculate($context)
-                ->getArrayWithTypeException() as $key => $value) {
+        $arr = null;
+        try {
+            $arr = $this->expression->calculate($context)->getArrayWithTypeException();
+        } catch (BaseValidationException $e) {
+            throw new ValidationException( $e, null );
+        }
+        foreach ($arr as $key => $value) {
             $itemContext = Context::createFromContext($context);
             $itemContext->setVariable($this->getKeyName(), new Value($context, $key));
             $itemContext->setVariable($this->getValueName(), $value);

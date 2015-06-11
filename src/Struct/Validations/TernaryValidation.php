@@ -11,6 +11,7 @@ namespace DVL\Struct\Validations;
 use DVL\Struct\Expressions\BaseExpression;
 use DVL\Struct\Context;
 use DVL\Struct\Validations\BaseValidation;
+use DVL\Struct\Exceptions\BaseValidationException;
 
 /**
  * Description of TernaryValidation
