@@ -37,7 +37,7 @@ class DVLParser extends Parser\Basic {
 /*!* DVLParser
 
 Number: /[0-9]+/
-String: "\'" val:(/([^'\\]|\\')* /) "\'" | '"' val:(/([^"\\]|\\")* /) '"' 
+String: "\'" val:(/([^'\\]|\\'|\\\\)* /) "\'" | '"' val:(/([^"\\]|\\"|\\\\)* /) '"' 
 Name: !Boolean !This /[a-zA-Z_]+([a-zA-Z0-9_]*)/
 Tag: !Boolean !This /[a-zA-Z0-9_]+/
 Boolean: 'true' | 'false'
@@ -116,15 +116,15 @@ ValidationControl: Group | Foreach | Ternary | Use | Validation
 	function *( &$result, $sub ) {
 		$result['validation'] = $sub['validation'];
 	}
-Validation: Expression ( > '@' > message:String > ( '%' > tag:String )? )? >
+Validation: Expression ( > '@' > message:StringExpression > ( '%' > tag:StringExpression )? )? >
 	function Expression( &$result, $sub ) {
 		$result['validation'] = new Validation( $sub['expression'] );
 	}
 	function message( &$result, $sub ) {
-		$result['validation']->setMessage($sub['val']['text']);
+		$result['validation']->setMessageExpression($sub['expression']);
 	}
 	function tag( &$result, $sub ) {
-		$result['validation']->setTag($sub['val']['text']);
+		$result['validation']->setTagExpression($sub['expression']);
 	}
 
 BooleanValueNarrow: Boolean > | Function > | Variable > | '(' > BooleanExpression > ')' >

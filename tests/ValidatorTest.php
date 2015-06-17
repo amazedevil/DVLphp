@@ -124,7 +124,21 @@ class ValidatorTest extends PHPUnit_Framework_TestCase {
     
     public function testValidatorVariableAccessors() {
         
-        //TODO: make tests for native + custom functions
+        $this->processSuccessiveTestsArray(array(
+            'this' => true,
+            'this.key1' => array( 'key1' => true ),
+            'this["111"]' => array( '111' => true ),
+            'this["111"].key1' => array( '111' => array( 'key1' => true ) ),
+            '$(this[i % 2 > 0]) value > 0' => array( -1, 1, -1, 1, -1, 1 ),
+        ));
+        
+        $this->processFailingTestsArray(array(
+            'this' => false,
+            'this.key1' => 1,
+            'this.key1' => array( 'key_not_one' => true ),
+            'this["111"]' => array( '222' => true ),
+            '$(this[i % 2 == 0]) value > 0' => array( -1, 1, -1, 1, -1, 1 ),
+        ));
         
     }
     
@@ -136,6 +150,7 @@ class ValidatorTest extends PHPUnit_Framework_TestCase {
             'INT(this) + 1 == 2' => 1,
             'BOOL(this)' => true,
             'ARRAY(this)' => [ 1, 2, 3 ],
+            'COUNT(this) == 1' => array( 1 ),
             '$(KEYS(this)) value >= 0' => [ 1, 2, 3 ],
             'STRING("test") == "test"' => null,
             'STRLEN("test") == 4' => null,
@@ -165,6 +180,8 @@ class ValidatorTest extends PHPUnit_Framework_TestCase {
             'INT(this) + 1 != 2' => 'test',
             'BOOL(this)' => 1,
             'ARRAY(this)' => 1,
+            'COUNT(this) == 1' => 1,
+            'COUNT(this) == 1' => array( 1, 2 ),
             '$(KEYS(this)) value >= 0' => 'test',
             'STRING(2) == "test"' => null,
             'STRLEN(4) == 4' => null,
@@ -228,6 +245,72 @@ class ValidatorTest extends PHPUnit_Framework_TestCase {
             '(this) ? false : true' => true,
             '(this + 1 > 1) ? true : false' => true,
         ));
+        
+    }
+    
+    public function testValidatorComplex() {
+
+        $validator = new DVLValidator('{
+            (INT(this.var_num)) {
+                this > 0 @ "var_num must be positive" % "var_num_positive_tag",
+                this < 30 @ "var_num must be less than 30, value = {this}"
+            },
+            (STRING(this.var_str)) {
+                STRLEN(this) < 20,
+                this[0] == "t"
+            },
+            (ARRAY(this.var_arr)) {
+                $(this) value > 0 @ "var_arr value \"{value}\" with key \"{key}\" must be positive",
+                $(this[!(i % 2 > 0)]) value == 2,
+                $(KEYS(this)) {
+                    $(this : k => v) v + k < 8 @ "key \"{k}\" value \"{v}\" error",
+                    $(this) value > 0
+                }
+            },
+            CUSTOM_ARRAY(this.var_arr),
+            (IS_ASSOC(this.var_assoc)) ? (this.var_assoc) {
+                $(KEYS(this)) NATIVE_REGEX_MATCH("/key[0..9]+/", value)
+            } : {
+                IS_ARRAY(this.var_assoc)
+            },
+            (this.var_assoc) {
+                $(this) INT(value)
+            }
+        }', array(
+            'functions' => array(
+                'CUSTOM_ARRAY' => function($var) {
+                    if (!is_array($var)) {
+                        throw new TestCustomValidationException();
+                    }
+                    return $var;
+                }
+            ),
+        ));
+        
+        $this->assertTrue($validator->validate(array(
+            'var_num' => 5,
+            'var_str' => 'test',
+            'var_arr' => array( 2, 1, 2, 4 ),
+            'var_assoc' => array(
+                'key1' => 1,
+                'key2' => 2,
+                'key3' => 3,
+                'key4' => 4,
+            )
+        )));
+        
+        $validator->validate(array(
+            'var_num' => 0
+        ));
+        $this->assertEquals('var_num must be positive', $validator->getLastErrorMessage());
+        $this->assertEquals('var_num_positive_tag', $validator->getLastErrorTag());
+        
+        $validator->validate(array(
+            'var_num' => 31
+        ));
+        $this->assertEquals('var_num must be less than 30, value = 31', $validator->getLastErrorMessage());
+        
+        //TODO: finish fail cases
         
     }
     

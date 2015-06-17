@@ -93,8 +93,15 @@ class FunctionManager {
                     );
                 }
                 return preg_match($regex, $var, $uninitialized, $flags, $offset);
-            }
-            //TODO: add COUNT function
+            },
+            'COUNT' => function($var) {
+                if (!is_array($var)) {
+                    throw new NativeValidationFunctionException(
+                        NativeValidationFunctionException::FUNC_ARRAY_TYPE_FAILED
+                    );
+                }
+                return count($var);
+            },
         ];
     }
     

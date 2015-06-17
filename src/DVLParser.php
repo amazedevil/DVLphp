@@ -46,7 +46,7 @@ function match_Number ($stack = array()) {
 }
 
 
-/* String: "\'" val:(/([^'\\]|\\')* /) "\'" | '"' val:(/([^"\\]|\\")* /) '"'  */
+/* String: "\'" val:(/([^'\\]|\\'|\\\\)* /) "\'" | '"' val:(/([^"\\]|\\"|\\\\)* /) '"'  */
 protected $match_String_typestack = array('String');
 function match_String ($stack = array()) {
 	$matchrule = "String"; $result = $this->construct($matchrule, $matchrule, null);
@@ -64,7 +64,7 @@ function match_String ($stack = array()) {
 			$stack[] = $result; $result = $this->construct( $matchrule, "val" ); 
 			$_4 = NULL;
 			do {
-				if (( $subres = $this->rx( '/([^\'\\\\]|\\\\\')* /' ) ) !== FALSE) { $result["text"] .= $subres; }
+				if (( $subres = $this->rx( '/([^\'\\\\]|\\\\\'|\\\\\\\\)* /' ) ) !== FALSE) { $result["text"] .= $subres; }
 				else { $_4 = FALSE; break; }
 				$_4 = TRUE; break;
 			}
@@ -98,7 +98,7 @@ function match_String ($stack = array()) {
 			$stack[] = $result; $result = $this->construct( $matchrule, "val" ); 
 			$_11 = NULL;
 			do {
-				if (( $subres = $this->rx( '/([^"\\\\]|\\\\")* /' ) ) !== FALSE) { $result["text"] .= $subres; }
+				if (( $subres = $this->rx( '/([^"\\\\]|\\\\"|\\\\\\\\)* /' ) ) !== FALSE) { $result["text"] .= $subres; }
 				else { $_11 = FALSE; break; }
 				$_11 = TRUE; break;
 			}
@@ -890,7 +890,7 @@ public function ValidationControl_STR ( &$result, $sub ) {
 		$result['validation'] = $sub['validation'];
 	}
 
-/* Validation: Expression ( > '@' > message:String > ( '%' > tag:String )? )? > */
+/* Validation: Expression ( > '@' > message:StringExpression > ( '%' > tag:StringExpression )? )? > */
 protected $match_Validation_typestack = array('Validation');
 function match_Validation ($stack = array()) {
 	$matchrule = "Validation"; $result = $this->construct($matchrule, $matchrule, null);
@@ -911,7 +911,7 @@ function match_Validation ($stack = array()) {
 			}
 			else { $_176 = FALSE; break; }
 			if (( $subres = $this->whitespace(  ) ) !== FALSE) { $result["text"] .= $subres; }
-			$matcher = 'match_'.'String'; $key = $matcher; $pos = $this->pos;
+			$matcher = 'match_'.'StringExpression'; $key = $matcher; $pos = $this->pos;
 			$subres = ( $this->packhas( $key, $pos ) ? $this->packread( $key, $pos ) : $this->packwrite( $key, $pos, $this->$matcher(array_merge($stack, array($result))) ) );
 			if ($subres !== FALSE) {
 				$this->store( $result, $subres, "message" );
@@ -928,7 +928,7 @@ function match_Validation ($stack = array()) {
 				}
 				else { $_174 = FALSE; break; }
 				if (( $subres = $this->whitespace(  ) ) !== FALSE) { $result["text"] .= $subres; }
-				$matcher = 'match_'.'String'; $key = $matcher; $pos = $this->pos;
+				$matcher = 'match_'.'StringExpression'; $key = $matcher; $pos = $this->pos;
 				$subres = ( $this->packhas( $key, $pos ) ? $this->packread( $key, $pos ) : $this->packwrite( $key, $pos, $this->$matcher(array_merge($stack, array($result))) ) );
 				if ($subres !== FALSE) {
 					$this->store( $result, $subres, "tag" );
@@ -965,11 +965,11 @@ public function Validation_Expression ( &$result, $sub ) {
 	}
 
 public function Validation_message ( &$result, $sub ) {
-		$result['validation']->setMessage($sub['val']['text']);
+		$result['validation']->setMessageExpression($sub['expression']);
 	}
 
 public function Validation_tag ( &$result, $sub ) {
-		$result['validation']->setTag($sub['val']['text']);
+		$result['validation']->setTagExpression($sub['expression']);
 	}
 
 /* BooleanValueNarrow: Boolean > | Function > | Variable > | '(' > BooleanExpression > ')' > */

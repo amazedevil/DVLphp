@@ -21,22 +21,22 @@ use DVL\Struct\Exceptions\ValidationException;
  */
 class Validation extends BaseValidation {
     
-    private $message;
-    private $tag;
+    private $messageExpression;
+    private $tagExpression;
     private $expression;
     
     function __construct(BaseExpression $expression, $message = null, $tag = null) {
         $this->expression = $expression;
-        $this->setMessage($message);
-        $this->setTag($tag);
+        $this->setMessageExpression($message);
+        $this->setTagExpression($tag);
     }
     
-    public function setMessage($message) {
-        $this->message = $message;
+    public function setMessageExpression($expression) {
+        $this->messageExpression = $expression;
     }
     
-    public function setTag($tag) {
-        $this->tag = $tag;
+    public function setTagExpression($expression) {
+        $this->tagExpression = $expression;
     }
     
     private function processMessage(Context $context, BaseValidationException $e, $message) {
@@ -47,6 +47,7 @@ class Validation extends BaseValidation {
         if ($e->getInvalidValue() !== null) {
             $replacements['{invalid}'] = $e->getInvalidValue();
         }
+        $replacements['{this}'] = $context->getThis()->asString();
         return strtr($message, $replacements);
     }
     
@@ -56,10 +57,17 @@ class Validation extends BaseValidation {
                 throw new FalseResultValidationException();
             }
         } catch (BaseValidationException $e) {
+            $message = $this->messageExpression != null ?
+                $this->messageExpression->calculate($context)->getStringWithTypeException() :
+                null;
+            $tag = $this->tagExpression != null ?
+                $this->tagExpression->calculate($context)->getStringWithTypeException() :
+                null;
             throw new ValidationException(
-                    $e, 
-                    $this->processMessage($context, $e, $this->message), 
-                    $this->tag);
+                $e, 
+                $this->processMessage( $context, $e, $message ),
+                $tag
+            );
         }
     }
     

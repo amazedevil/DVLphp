@@ -20,6 +20,8 @@ class Value {
     
     const STRING_INVERSE_EXCEPTION_MESSAGE = "String inverse exception";
     
+    const ARRAY_AS_STRING_REPRESENTATION = "array";
+    
     const TYPE_BOOLEAN = 0;
     const TYPE_STRING = 1;
     const TYPE_NUMERIC = 2;
@@ -154,6 +156,28 @@ class Value {
         }
         
         return $this->value;
+    }
+    
+    public function getStringWithTypeException() {
+        if ($this->type != static::TYPE_STRING) {
+            throw new TypeException(
+                    static::typeToString($this->type), 
+                    static::typeToString(Value::TYPE_STRING), 
+                    $this->value);
+        }
+        
+        return $this->value;
+    }
+    
+    public function asString() {
+        if ($this->type == static::TYPE_ARRAY) {
+            //TODO: maybe we need some other array representation
+            return static::ARRAY_AS_STRING_REPRESENTATION;
+        } else if ($this->type == static::TYPE_BOOLEAN) {
+            return $this->value ? 'true' : 'false';
+        } else {
+            return (string)$this->value;
+        }
     }
     
     public static function isEqualWithTypeException(Value $val1, Value $val2) {

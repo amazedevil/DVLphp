@@ -6,12 +6,12 @@
  * and open the template in the editor.
  */
 
-namespace DVL\Struct\Exceptions;
+use DVL\Struct\Exceptions\BaseValidationException;
 
 /**
- * Description of ValidatorStructureException
+ * Description of TestCustomValidationException
  *
  * @author User
  */
-class ValidatorBinaryStructureException extends BaseValidatorStructureException {    
+class TestCustomValidationException extends BaseValidationException {
 }

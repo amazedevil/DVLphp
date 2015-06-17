@@ -8,6 +8,8 @@
 
 namespace DVL\Struct\Exceptions;
 
+use Exception;
+
 /**
  * Description of FunctionNotFoundException
  *
