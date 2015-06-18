@@ -8,6 +8,10 @@
 
 use DVL\DVLValidator;
 use DVL\Struct\Exceptions\FalseResultValidationException;
+use DVL\Struct\Exceptions\BaseValidationException;
+
+class TestCustomValidationException extends BaseValidationException {
+}
 
 /**
  * Description of ValidatorTests
@@ -259,15 +263,14 @@ class ValidatorTest extends PHPUnit_Framework_TestCase {
                 STRLEN(this) < 20,
                 this[0] == "t"
             },
-            (ARRAY(this.var_arr)) {
+            (CUSTOM_ARRAY(this.var_arr)) {
                 $(this) value > 0 @ "var_arr value \"{value}\" with key \"{key}\" must be positive",
                 $(this[!(i % 2 > 0)]) value == 2,
-                $(KEYS(this)) {
+                (KEYS(this)) {
                     $(this : k => v) v + k < 8 @ "key \"{k}\" value \"{v}\" error",
-                    $(this) value > 0
+                    $(this) value >= 0
                 }
             },
-            CUSTOM_ARRAY(this.var_arr),
             (IS_ASSOC(this.var_assoc)) ? (this.var_assoc) {
                 $(KEYS(this)) NATIVE_REGEX_MATCH("/key[0..9]+/", value)
             } : {
@@ -310,7 +313,19 @@ class ValidatorTest extends PHPUnit_Framework_TestCase {
         ));
         $this->assertEquals('var_num must be less than 30, value = 31', $validator->getLastErrorMessage());
         
-        //TODO: finish fail cases
+        $validator->validate(array(
+            'var_num' => 5,
+            'var_str' => 'test',
+            'var_arr' => array( 2 => 2, 5 => 1, 8 => 2, 17 => 4 ),
+        ));
+        $this->assertEquals('key "2" value "8" error', $validator->getLastErrorMessage());
+        
+        $validator->validate(array(
+            'var_num' => 5,
+            'var_str' => 'test',
+            'var_arr' => 1,
+        ));
+        $this->assertTrue($validator->getLastException()->getPrevious() instanceof TestCustomValidationException);
         
     }
     

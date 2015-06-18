@@ -42,7 +42,7 @@ class Validation extends BaseValidation {
     private function processMessage(Context $context, BaseValidationException $e, $message) {
         $replacements = [];
         foreach ($context->getAllVariables() as $key => $value) {
-            $replacements["\{$key\}"] = $value;
+            $replacements["{{$key}}"] = $value->asString();
         }
         if ($e->getInvalidValue() !== null) {
             $replacements['{invalid}'] = $e->getInvalidValue();
