@@ -36,7 +36,7 @@ class DVLParser extends Parser\Basic {
 
 /*!* DVLParser
 
-Number: /[0-9]+/
+Number: /[0-9]+(\.[0-9]+)* /
 String: "\'" val:(/([^'\\]|\\'|\\\\)* /) "\'" | '"' val:(/([^"\\]|\\"|\\\\)* /) '"' 
 Name: !Boolean !This /[a-zA-Z_]+([a-zA-Z0-9_]*)/
 Tag: !Boolean !This /[a-zA-Z0-9_]+/

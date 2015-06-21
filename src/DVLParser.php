@@ -34,11 +34,11 @@ class DVLParser extends Parser\Basic {
 		return FALSE ;
 	}
 
-/* Number: /[0-9]+/ */
+/* Number: /[0-9]+(\.[0-9]+)* / */
 protected $match_Number_typestack = array('Number');
 function match_Number ($stack = array()) {
 	$matchrule = "Number"; $result = $this->construct($matchrule, $matchrule, null);
-	if (( $subres = $this->rx( '/[0-9]+/' ) ) !== FALSE) {
+	if (( $subres = $this->rx( '/[0-9]+(\.[0-9]+)* /' ) ) !== FALSE) {
 		$result["text"] .= $subres;
 		return $this->finalise($result);
 	}

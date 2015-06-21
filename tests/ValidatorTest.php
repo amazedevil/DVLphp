@@ -9,8 +9,35 @@
 use DVL\DVLValidator;
 use DVL\Struct\Exceptions\FalseResultValidationException;
 use DVL\Struct\Exceptions\BaseValidationException;
+use DVL\Struct\Adapters\IAdapter;
+use DVL\Struct\Exceptions\AdapterNotFoundException;
 
 class TestCustomValidationException extends BaseValidationException {
+}
+
+class TestArrayConvertableObject {
+    
+    public $arr;
+    
+    function __construct($arr) {
+        $this->arr = $arr;
+    }
+    
+}
+
+class TestArrayUnconvertableObject {
+}
+
+class TestArrayConvertableObjectAdapter implements IAdapter {
+    
+    public function convertToNativeVariable($variable) {
+        return $variable->arr;
+    }
+
+    public function isConvertableVariable($variable) {
+        return $variable instanceof TestArrayConvertableObject;
+    }
+
 }
 
 /**
@@ -51,6 +78,7 @@ class ValidatorTest extends PHPUnit_Framework_TestCase {
             '1 != 1 || 2 == 2' => null,
             '1 == 1 || 2 != 2' => null,
             '1 == 1 || 2 == 2' => null,
+            '1 == "test" || 2 == 2' => null,
             'true' => null,
             '!false' => null,
         ));
@@ -85,6 +113,7 @@ class ValidatorTest extends PHPUnit_Framework_TestCase {
             '4 % 3 == 1' => null,
             '-1 < 0' => null,
             '-1 + 1 == 0' => null,
+            '1.5 + 1.2 == 2.7' => null
         ));
         
         $this->processFailingTestsArray(array(
@@ -96,6 +125,7 @@ class ValidatorTest extends PHPUnit_Framework_TestCase {
             '4 % 3 == 2' => null,
             '-1 > 0' => null,
             '-1 + 1 != 0' => null,
+            '1.5 + 1.2 != 2.7' => null,
         ));
         
     }
@@ -278,7 +308,8 @@ class ValidatorTest extends PHPUnit_Framework_TestCase {
             },
             (this.var_assoc) {
                 $(this) INT(value)
-            }
+            },
+            ARRAY(this.var_arr_convertable)
         }', array(
             'functions' => array(
                 'CUSTOM_ARRAY' => function($var) {
@@ -289,6 +320,10 @@ class ValidatorTest extends PHPUnit_Framework_TestCase {
                 }
             ),
         ));
+            
+        $validator->getAdapterManager()->registerAdapter(
+            new TestArrayConvertableObjectAdapter()
+        );
         
         $this->assertTrue($validator->validate(array(
             'var_num' => 5,
@@ -299,7 +334,8 @@ class ValidatorTest extends PHPUnit_Framework_TestCase {
                 'key2' => 2,
                 'key3' => 3,
                 'key4' => 4,
-            )
+            ),
+            'var_arr_convertable' => new TestArrayConvertableObject(array( 1, 2 ))
         )));
         
         $validator->validate(array(
@@ -327,6 +363,57 @@ class ValidatorTest extends PHPUnit_Framework_TestCase {
         ));
         $this->assertTrue($validator->getLastException()->getPrevious() instanceof TestCustomValidationException);
         
+        try {
+            $validator->validate(array(
+                'var_num' => 5,
+                'var_str' => 'test',
+                'var_arr' => array( 2, 1, 2, 4 ),
+                'var_assoc' => array(
+                    'key1' => 1,
+                    'key2' => 2,
+                    'key3' => 3,
+                    'key4' => 4,
+                ),
+                'var_arr_convertable' => new TestArrayUnconvertableObject()
+            ));
+            $this->fail();
+        } catch (AdapterNotFoundException $e) {
+            //That's how it should be
+        }
+        
+    }
+    
+    public function testValidatorReadmeExample() {
+        $validator = new DVLValidator('{
+            STRLEN(this.first_name) < 64 @ "First name must be no longer than 64 symbols",
+            STRLEN(this.last_name) < 64 @ "Last name must be no longer than 64 symbols",
+            (this.age) {
+                this > 20 @ "Not enough old" % "age_young",
+                this < 100 @ "Too old" % "age_old"
+            },
+            $(this.professions) {
+                (value == "composer") ?
+                    (this.songs_written) this > 0 || this == "many" :
+                    true
+            },
+            BAND_EXISTS(this.band_id)
+        }', [
+            'functions' => [
+                'BAND_EXISTS' => function($id) {
+                    return true;
+                }
+            ]
+        ]);
+
+        $this->assertTrue($validator->validate(array(
+            'first_name' => 'Dexter',
+            'last_name' => 'Holland',
+            'age' => 49,
+            'instrument' => 'microphone',
+            'songs_written' => 'many',
+            'professions' => array( 'musician', 'composer', 'singer' ),
+            'band_id' => 'the_offspring'
+        )));
     }
     
 }

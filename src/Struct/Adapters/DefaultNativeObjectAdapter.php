@@ -20,7 +20,7 @@ class DefaultNativeObjectAdapter implements IAdapter {
     }
 
     public function isConvertableVariable($variable) {
-        return is_object($variable);
+        return $variable instanceof stdClass;
     }
 
 }

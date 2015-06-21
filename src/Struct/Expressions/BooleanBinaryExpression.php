@@ -10,6 +10,7 @@ namespace DVL\Struct\Expressions;
 
 use DVL\Struct\Context;
 use DVL\Struct\Value;
+use DVL\Struct\Exceptions\BaseValidationException;
 
 /**
  * Description of BooleanAndExpression
