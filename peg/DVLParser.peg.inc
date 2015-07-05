@@ -79,8 +79,8 @@ Use: '(' > Expression > ')' > ValidationControl >
 	function ValidationControl( &$result, $sub ) {
 		$result['validation']->setValidation( $sub['validation'] );
 	}
-Ternary: '(' > BooleanExpression > ')' > '?' > ValidationControl > ( ':' > ValidationControl > )?
-	function BooleanExpression( &$result, $sub ) {
+Ternary: '(' > Expression > ')' > '?' > ValidationControl > ( ':' > ValidationControl > )?
+	function Expression( &$result, $sub ) {
 		$result['validation'] = new TernaryValidation( $sub['expression'] );
 	}
 	function ValidationControl( &$result, $sub ) {
@@ -90,8 +90,8 @@ Ternary: '(' > BooleanExpression > ')' > '?' > ValidationControl > ( ':' > Valid
 			$result['validation']->setNegative( $sub['validation'] );
 		}
 	}
-Foreach: '$(' > ArrayExpression > ( ':' > key_value:Name > ( '=>' > value:Name )? )? > ')' > ValidationControl >
-	function ArrayExpression( &$result, $sub ) {
+Foreach: '$(' > Expression > ( ':' > key_value:Name > ( '=>' > value:Name )? )? > ')' > ValidationControl >
+	function Expression( &$result, $sub ) {
 		$result['validation'] = new ForeachValidation( $sub['expression'] );
 	}
 	function key_value( &$result, $sub ) {
@@ -116,131 +116,28 @@ ValidationControl: Group | Foreach | Ternary | Use | Validation
 	function *( &$result, $sub ) {
 		$result['validation'] = $sub['validation'];
 	}
-Validation: Expression ( > '@' > message:StringExpression > ( '%' > tag:StringExpression )? )? >
+Validation: Expression ( > '@' > message:String > ( '%' > tag:String )? )? >
 	function Expression( &$result, $sub ) {
 		$result['validation'] = new Validation( $sub['expression'] );
 	}
 	function message( &$result, $sub ) {
-		$result['validation']->setMessageExpression($sub['expression']);
+		$result['validation']->setMessageExpression(new StringConstExpression($sub['val']['text']));
 	}
 	function tag( &$result, $sub ) {
-		$result['validation']->setTagExpression($sub['expression']);
+		$result['validation']->setTagExpression(new StringConstExpression($sub['val']['text']));
 	}
-
-BooleanValueNarrow: Boolean > | Function > | Variable > | '(' > BooleanExpression > ')' >
+    
+Value: '!' Value > | String > | Boolean > | Number > | Function > | Variable > | '(' > Expression > ')' >
+    function Value( &$result, $sub ) {
+		$result['expression'] = new BooleanUnaryExpression(BooleanUnaryExpression::TYPE_NOT, $sub['expression']);
+	}
+    function String( &$result, $sub ) {
+		$result['expression'] = new StringConstExpression($sub['val']['text']);
+	}
 	function Boolean( &$result, $sub ) {
 		$result['expression'] = new BooleanConstExpression($sub['text']);
 	}
-	function Function( &$result, $sub ) {
-		$result['expression'] = $sub['function'];
-	}
-	function Variable( &$result, $sub ) {
-		$result['expression'] = $sub['variable'];
-	}
-	function BooleanExpression( &$result, $sub ) {
-		$result['expression'] = $sub['expression'];
-	}
-	function CompareExpression( &$result, $sub ) {
-		$result['expression'] = $sub['expression'];
-	}
-BooleanValue: CompareExpression > | BooleanValueNarrow >
-	function *( &$result, $sub ) {
-		$result['expression'] = $sub['expression'];
-	}
-EqualityComparableExpression: NumericExpression | BooleanValueNarrow | StringExpression >
-	function *( &$result, $sub ) {
-		$result['expression'] = $sub['expression'];
-	}
-Greater: '>' > second_operand:NumericExpression >
-Less: '<' > second_operand:NumericExpression >
-LessOrEqual: '<=' > second_operand:NumericExpression >
-GreaterOrEqual: '>=' > second_operand:NumericExpression >
-Equal: '==' > second_operand:EqualityComparableExpression >
-NotEqual: '!=' > second_operand:EqualityComparableExpression >
-CompareExpression: NumericExpression > ( Greater | Less | LessOrEqual | GreaterOrEqual ) | EqualityComparableExpression > ( Equal | NotEqual )
-	function NumericExpression( &$result, $sub ) {
-		$result['expression'] = $sub['expression'];
-	}
-	function Greater( &$result, $sub ) {
-		$result['expression'] = new BooleanBinaryExpression(
-			BooleanBinaryExpression::TYPE_GREATER,
-			$result['expression'],
-			$sub['second_operand']['expression']
-		);
-	}
-	function Less( &$result, $sub ) {
-		$result['expression'] = new BooleanBinaryExpression(
-			BooleanBinaryExpression::TYPE_LESS,
-			$result['expression'],
-			$sub['second_operand']['expression']
-		);
-	}
-	function LessOrEqual( &$result, $sub ) {
-		$result['expression'] = new BooleanBinaryExpression(
-			BooleanBinaryExpression::TYPE_LESS_OR_EQUAL,
-			$result['expression'],
-			$sub['second_operand']['expression']
-		);
-	}
-	function GreaterOrEqual( &$result, $sub ) {
-		$result['expression'] = new BooleanBinaryExpression(
-			BooleanBinaryExpression::TYPE_GREATER_OR_EQUAL,
-			$result['expression'],
-			$sub['second_operand']['expression']
-		);
-	}
-	function EqualityComparableExpression( &$result, $sub ) {
-		$result['expression'] = $sub['expression'];
-	}
-	function Equal( &$result, $sub ) {
-		$result['expression'] = new BooleanBinaryExpression(
-			BooleanBinaryExpression::TYPE_EQUAL,
-			$result['expression'],
-			$sub['second_operand']['expression']
-		);
-	}
-	function NotEqual( &$result, $sub ) {
-		$result['expression'] = new BooleanBinaryExpression(
-			BooleanBinaryExpression::TYPE_NOT_EQUAL,
-			$result['expression'],
-			$sub['second_operand']['expression']
-		);
-	}
-BooleanBinaryOperatorSign: '>' | '<' | '>=' | '<=' | '==' | '!=' | '&&' | '||'
-And: '&&' > second_operand:BooleanValue >
-Or: '||' > second_operand:BooleanValue >
-Not: '!' BooleanValue >
-	function BooleanValue( &$result, $sub ) {
-		$result['expression'] = new BooleanUnaryExpression(BooleanUnaryExpression::TYPE_NOT, $sub['expression']);
-	}
-BooleanOperation: Not | BooleanValue > ( And | Or ) >
-	function Not( &$result, $sub ) {
-		$result['expression'] = $sub['expression'];
-	}
-	function BooleanValue( &$result, $sub ) {
-		$result['expression'] = $sub['expression'];
-	}
-	function And( &$result, $sub ) {
-		$result['expression'] = new BooleanBinaryExpression(
-			BooleanBinaryExpression::TYPE_AND,
-			$result['expression'],
-			$sub['second_operand']['expression']
-		);
-	}
-	function Or( &$result, $sub ) {
-		$result['expression'] = new BooleanBinaryExpression(
-			BooleanBinaryExpression::TYPE_OR,
-			$result['expression'],
-			$sub['second_operand']['expression']
-		);
-	}
-BooleanExpression: BooleanOperation | BooleanValue >
-	function *( &$result, $sub ) {
-		$result['expression'] = $sub['expression'];
-	}
-	
-NumericValue: Number > | Function > | Variable > | '(' > NumericExpression > ')' >
-	function Number( &$result, $sub ) {
+    function Number( &$result, $sub ) {
 		$result['expression'] = new ArithmeticConstExpression($sub['text']);
 	}
 	function Function( &$result, $sub ) {
@@ -249,14 +146,14 @@ NumericValue: Number > | Function > | Variable > | '(' > NumericExpression > ')'
 	function Variable( &$result, $sub ) {
 		$result['expression'] = $sub['variable'];
 	}
-	function NumericExpression( &$result, $sub ) {
+	function Expression( &$result, $sub ) {
 		$result['expression'] = $sub['expression'];
 	}
-Mul: '*' > second_operand:NumericValue >
-Div: '/' > second_operand:NumericValue >
-Mod: '%' > second_operand:NumericValue >
-Product: NumericValue > ( Mul | Div | Mod )*
-	function NumericValue( &$result, $sub ) {
+Mul: '*' > second_operand:Value >
+Div: '/' > second_operand:Value >
+Mod: '%' > second_operand:Value >
+Product: Value > ( Mul | Div | Mod )*
+	function Value( &$result, $sub ) {
 		$result['expression'] = $sub['expression'];
 	}
 	function Mul( &$result, $sub ) {
@@ -310,33 +207,86 @@ Sum: ( MinusProduct | Product ) > ( Plus | Minus )*
 			$sub['second_operand']['expression']
 		);
 	}
-NumericExpression: Sum >
-	function Sum( &$result, $sub ) {
+ArithmeticExpression: Sum >
+	function *( &$result, $sub ) {
 		$result['expression'] = $sub['sum'];
 	}
-	
-StringExpression: String
-	function String( &$result, $sub ) {
-		$result['expression'] = new StringConstExpression($sub['val']['text']);
+Greater: '>' > second_operand:ArithmeticExpression >
+Less: '<' > second_operand:ArithmeticExpression >
+LessOrEqual: '<=' > second_operand:ArithmeticExpression >
+GreaterOrEqual: '>=' > second_operand:ArithmeticExpression >
+Equal: '==' > second_operand:ArithmeticExpression >
+NotEqual: '!=' > second_operand:ArithmeticExpression >
+CompareExpression: ArithmeticExpression > ( Greater | Less | LessOrEqual | GreaterOrEqual | Equal | NotEqual )?
+	function ArithmeticExpression( &$result, $sub ) {
+		$result['expression'] = $sub['expression'];
+	}
+	function Greater( &$result, $sub ) {
+		$result['expression'] = new BooleanBinaryExpression(
+			BooleanBinaryExpression::TYPE_GREATER,
+			$result['expression'],
+			$sub['second_operand']['expression']
+		);
+	}
+	function Less( &$result, $sub ) {
+		$result['expression'] = new BooleanBinaryExpression(
+			BooleanBinaryExpression::TYPE_LESS,
+			$result['expression'],
+			$sub['second_operand']['expression']
+		);
+	}
+	function LessOrEqual( &$result, $sub ) {
+		$result['expression'] = new BooleanBinaryExpression(
+			BooleanBinaryExpression::TYPE_LESS_OR_EQUAL,
+			$result['expression'],
+			$sub['second_operand']['expression']
+		);
+	}
+	function GreaterOrEqual( &$result, $sub ) {
+		$result['expression'] = new BooleanBinaryExpression(
+			BooleanBinaryExpression::TYPE_GREATER_OR_EQUAL,
+			$result['expression'],
+			$sub['second_operand']['expression']
+		);
+	}
+	function Equal( &$result, $sub ) {
+		$result['expression'] = new BooleanBinaryExpression(
+			BooleanBinaryExpression::TYPE_EQUAL,
+			$result['expression'],
+			$sub['second_operand']['expression']
+		);
+	}
+	function NotEqual( &$result, $sub ) {
+		$result['expression'] = new BooleanBinaryExpression(
+			BooleanBinaryExpression::TYPE_NOT_EQUAL,
+			$result['expression'],
+			$sub['second_operand']['expression']
+		);
+	}
+And: '&&' > second_operand:CompareExpression >
+Or: '||' > second_operand:CompareExpression >
+BooleanExpression: CompareExpression > ( And | Or )* >
+	function CompareExpression( &$result, $sub ) {
+		$result['expression'] = $sub['expression'];
+	}
+	function And( &$result, $sub ) {
+		$result['expression'] = new BooleanBinaryExpression(
+			BooleanBinaryExpression::TYPE_AND,
+			$result['expression'],
+			$sub['second_operand']['expression']
+		);
+	}
+	function Or( &$result, $sub ) {
+		$result['expression'] = new BooleanBinaryExpression(
+			BooleanBinaryExpression::TYPE_OR,
+			$result['expression'],
+			$sub['second_operand']['expression']
+		);
 	}
 
-Expression: StringExpression > | NumericExpression !BooleanBinaryOperatorSign | BooleanExpression
-	function NumericExpression( &$result, $sub ) {
+Expression: BooleanExpression
+	function *( &$result, $sub ) {
 		$result['expression'] = $sub['expression'];
-	}
-	function BooleanExpression( &$result, $sub ) {
-		$result['expression'] = $sub['expression'];
-	}
-	function StringExpression( &$result, $sub ) {
-		$result['expression'] = $sub['expression'];
-	}
-	
-ArrayExpression: Function > | Variable >
-	function Function( &$result, $sub ) {
-		$result['expression'] = $sub['function'];
-	}
-	function Variable( &$result, $sub ) {
-		$result['expression'] = $sub['variable'];
 	}
 	
 */
