@@ -74,6 +74,7 @@ class ValidatorTest extends PHPUnit_Framework_TestCase {
             '1 <= 2' => null,
             '3 > 2' => null,
             '3 < 4' => null,
+            '1 in [ 1, 2, 3 ]' => null,
             '1 == 1 && 2 == 2' => null,
             '1 != 1 || 2 == 2' => null,
             '1 == 1 || 2 != 2' => null,
@@ -92,6 +93,7 @@ class ValidatorTest extends PHPUnit_Framework_TestCase {
             '1 > 2' => null,
             '3 < 2' => null,
             '3 < 3' => null,
+            '4 in [ 1, 2, 3 ]' => null,
             '1 == 0 && 2 == 2' => null,
             '1 == 0 && 1 == 2' => null,
             '1 == 1 && 1 == 2' => null,
@@ -307,7 +309,7 @@ class ValidatorTest extends PHPUnit_Framework_TestCase {
                 IS_ARRAY(this.var_assoc)
             },
             (this.var_assoc) {
-                $(this) INT(value)
+                $(this) INT(value) in [ 1, 2, 3, 4 ]
             },
             ARRAY(this.var_arr_convertable)
         }', array(
@@ -394,7 +396,15 @@ class ValidatorTest extends PHPUnit_Framework_TestCase {
             $(this.professions) {
                 (value == "composer") ?
                     (this.songs_written) this > 0 || this == "many" :
-                    true
+                    true,
+                value in [
+                    "musician",
+                    "composer",
+                    "singer",
+                    "guitarist",
+                    "drummer",
+                    "bassist"
+                ]
             },
             BAND_EXISTS(this.band_id)
         }', [

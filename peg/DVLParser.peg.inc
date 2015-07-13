@@ -16,6 +16,7 @@ use DVL\Struct\Expressions\FunctionExpression;
 use DVL\Struct\Expressions\BooleanUnaryExpression;
 use DVL\Struct\Expressions\BooleanConstExpression;
 use DVL\Struct\Expressions\BooleanBinaryExpression;
+use DVL\Struct\Expressions\ArrayConstExpression;
 use DVL\Struct\Expressions\Accessors\PropertyAccessor;
 use DVL\Struct\Expressions\Accessors\VariableAccessor;
 use DVL\Struct\Expressions\Accessors\ThisAccessor;
@@ -39,26 +40,32 @@ class DVLParser extends Parser\Basic {
 Number: /[0-9]+(\.[0-9]+)* /
 String: "\'" val:(/([^'\\]|\\'|\\\\)* /) "\'" | '"' val:(/([^"\\]|\\"|\\\\)* /) '"' 
 Name: !Boolean !This /[a-zA-Z_]+([a-zA-Z0-9_]*)/
-Tag: !Boolean !This /[a-zA-Z0-9_]+/
 Boolean: 'true' | 'false'
 This: 'this' !/[a-zA-Z0-9_]/
+Array: '[' > initial:Expression > ( ',' > additional:Expression > )* ']'
+    function initial( &$result, $sub ) {
+		$result['expression'] = new ArrayConstExpression([ $sub['expression'] ]);
+	}
+    function additional( &$result, $sub ) {
+        $result['expression']->addExpression( $sub['expression'] );
+    }
 
-Property: '.' Name >
+PropertySelector: '.' Name >
 	function Name( &$result, $sub ) {
 		$result['accessor'] = new PropertyAccessor($sub['text']);
 	}
-ArrayElement: '[' > selector:Expression > ']' >
-Variable: ( Name | This ) (Property | ArrayElement)* >
+ArrayElementSelector: '[' > selector:Expression > ']' >
+Variable: ( Name | This ) (PropertySelector | ArrayElementSelector)* >
 	function Name( &$result, $sub ) {
 		$result['variable'] = new VariableExpression([ new VariableAccessor($sub['text']) ]);
 	}
 	function This( &$result, $sub ) {
 		$result['variable'] = new VariableExpression([ new ThisAccessor() ]);
 	}
-	function Property( &$result, $sub ) {
+	function PropertySelector( &$result, $sub ) {
 		$result['variable']->addAccessor($sub['accessor']);
 	}
-	function ArrayElement( &$result, $sub ) {
+	function ArrayElementSelector( &$result, $sub ) {
 		$result['variable']->addAccessor(new CollectionAccessor(
 			isset($sub['selector']['expression']) ? $sub['selector']['expression'] : null
 		));
@@ -127,7 +134,7 @@ Validation: Expression ( > '@' > message:String > ( '%' > tag:String )? )? >
 		$result['validation']->setTagExpression(new StringConstExpression($sub['val']['text']));
 	}
     
-Value: '!' Value > | String > | Boolean > | Number > | Function > | Variable > | '(' > Expression > ')' >
+Value: '!' Value > | String > | Boolean > | Number > | Array > | Function > | Variable > | '(' > Expression > ')' >
     function Value( &$result, $sub ) {
 		$result['expression'] = new BooleanUnaryExpression(BooleanUnaryExpression::TYPE_NOT, $sub['expression']);
 	}
@@ -140,6 +147,9 @@ Value: '!' Value > | String > | Boolean > | Number > | Function > | Variable > |
     function Number( &$result, $sub ) {
 		$result['expression'] = new ArithmeticConstExpression($sub['text']);
 	}
+    function Array( &$result, $sub ) {
+        $result['expression'] = $sub['expression'];
+    }
 	function Function( &$result, $sub ) {
 		$result['expression'] = $sub['function'];
 	}
@@ -217,7 +227,8 @@ LessOrEqual: '<=' > second_operand:ArithmeticExpression >
 GreaterOrEqual: '>=' > second_operand:ArithmeticExpression >
 Equal: '==' > second_operand:ArithmeticExpression >
 NotEqual: '!=' > second_operand:ArithmeticExpression >
-CompareExpression: ArithmeticExpression > ( Greater | Less | LessOrEqual | GreaterOrEqual | Equal | NotEqual )?
+In: 'in' > second_operand:ArithmeticExpression >
+CompareExpression: ArithmeticExpression > ( Greater | Less | LessOrEqual | GreaterOrEqual | Equal | NotEqual | In )?
 	function ArithmeticExpression( &$result, $sub ) {
 		$result['expression'] = $sub['expression'];
 	}
@@ -259,6 +270,13 @@ CompareExpression: ArithmeticExpression > ( Greater | Less | LessOrEqual | Great
 	function NotEqual( &$result, $sub ) {
 		$result['expression'] = new BooleanBinaryExpression(
 			BooleanBinaryExpression::TYPE_NOT_EQUAL,
+			$result['expression'],
+			$sub['second_operand']['expression']
+		);
+	}
+    function In( &$result, $sub ) {
+		$result['expression'] = new BooleanBinaryExpression(
+			BooleanBinaryExpression::TYPE_IN,
 			$result['expression'],
 			$sub['second_operand']['expression']
 		);

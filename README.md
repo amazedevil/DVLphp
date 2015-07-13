@@ -29,9 +29,17 @@ $validator = new DVLValidator('{
         this < 100 @ "Too old" % "age_old"
     },
     $(this.professions) {
-        (value == 'composer') ?
+        (value == "composer") ?
             (this.songs_written) this > 0 || this == 'many' :
-            true
+            true,
+        value in [
+            "musician",
+            "composer",
+            "singer",
+            "guitarist",
+            "drummer",
+            "bassist",
+        ]
     },
     BAND_EXISTS(this.band_id)
 }', [
@@ -211,6 +219,4 @@ $validator = new DVLValidator('STARTS_WITH_N(this)', [
 
 ## TODO
 
-- Add array constants
-- Add operation [Expression] 'in' [Array expression]
 - Add option to not stop group validator on first fail

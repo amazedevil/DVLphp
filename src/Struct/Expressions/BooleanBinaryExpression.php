@@ -29,6 +29,7 @@ class BooleanBinaryExpression extends BaseBooleanExpression {
     const TYPE_LESS_OR_EQUAL = 6;
     const TYPE_EQUAL = 7;
     const TYPE_NOT_EQUAL = 8;
+    const TYPE_IN = 9;
     
     private $type;
     private $operand1;
@@ -85,6 +86,10 @@ class BooleanBinaryExpression extends BaseBooleanExpression {
                 return !Value::isEqualWithTypeException(
                         $this->calcValue1($context),
                         $this->calcValue2($context));
+            case static::TYPE_IN:
+                return in_array(
+                        $this->calcValue1($context)->getRawValue(), 
+                        $this->calcValue2($context)->getRawArrayWithTypeException());
             default:
                 throw new ValidatorBinaryStructureException(
                         sprintf(static::WRONG_TYPE_EXCEPTION_MESSAGE, $this->type)

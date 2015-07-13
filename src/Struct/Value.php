@@ -103,6 +103,10 @@ class Value {
         return $this->type == static::TYPE_NUMERIC;
     }
     
+    public function isArray() {
+        return $this->type == static::TYPE_ARRAY;
+    }
+    
     public function asArray() {
         return $this->type == static::TYPE_ARRAY ? $this->value : [ $this->value ];
     }
@@ -116,6 +120,24 @@ class Value {
         }
         
         return $this->value;
+    }
+    
+    public function getRawArrayWithTypeException() {
+        if ($this->type != static::TYPE_ARRAY) {
+            throw new TypeException(
+                    static::typeToString($this->type), 
+                    static::typeToString(static::TYPE_ARRAY), 
+                    $this->value);
+        }
+        
+        $result = [];
+        foreach ($this->value as $key => $value) {
+            $result[$key] = $value->isArray() ? 
+                $value->getRawArrayWithTypeException() : 
+                $value->getRawValue();
+        }
+        
+        return $result;
     }
     
     public function getRawValue() {
