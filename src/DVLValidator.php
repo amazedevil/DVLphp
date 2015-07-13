@@ -1,11 +1,5 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 namespace DVL;
 
 use DVL\Struct\Context;
@@ -14,11 +8,6 @@ use DVL\Struct\FunctionManager;
 use DVL\Struct\Exceptions\ValidationException;
 use DVL\Struct\Exceptions\ArrayItemValidationException;
 
-/**
- * Description of DVLValidator
- *
- * @author User
- */
 class DVLValidator {
     
     private $adapterManager;

@@ -1,11 +1,5 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 namespace DVL\Struct;
 
 use DVL\Struct\Exceptions\NativeValidationFunctionException;
@@ -14,11 +8,6 @@ use DVL\Struct\Exceptions\FunctionNameInvalidException;
 use DVL\Struct\Exceptions\FunctionNotFoundException;
 use InvalidArgumentException;
 
-/**
- * Description of FunctionManager
- *
- * @author User
- */
 class FunctionManager {
     
     private $functions;

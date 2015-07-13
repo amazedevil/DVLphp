@@ -1,21 +1,10 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 namespace DVL\Struct;
 
 use DVL\Struct\Exceptions\TypeException;
 use DVL\Struct\Exceptions\KeyNotFoundValidationException;
 
-/**
- * Description of Value
- *
- * @author User
- */
 class Value {
     
     const STRING_INVERSE_EXCEPTION_MESSAGE = "String inverse exception";

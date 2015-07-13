@@ -1,11 +1,5 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 namespace DVL\Struct\Validations;
 
 use DVL\Struct\Expressions\BaseExpression;
@@ -14,11 +8,6 @@ use DVL\Struct\Exceptions\FalseResultValidationException;
 use DVL\Struct\Exceptions\BaseValidationException;
 use DVL\Struct\Exceptions\ValidationException;
 
-/**
- * Description of BaseValidation
- *
- * @author User
- */
 class Validation extends BaseValidation {
     
     private $messageExpression;
